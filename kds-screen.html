@@ -20,15 +20,24 @@
   лента карточек (2272px, перетаскиванием или колесом); полоса прокрутки
   снизу — из макета, синхронизирована с реальной прокруткой.
   Двойной клик по странице — переключение «по размеру окна» / 1:1.
+  Встраивание: ?embed=1 — без корпуса планшета; ?embed=1&pad=0 — ещё и без
+  полей (экран встык, прозрачный фон) — так его показывает страница версий
+  карточки. Вариант (скин) карточки: ?cards=1..8 (файлы из «Версии карточек»;
+  1 — v2, 2 — v2-компакт, 3 — v2-плоская, 4 — v3, 5 — вар. 3,
+  6 — моя: цветная шапка, 7 — моя: полоса сверху, 8 — Figma: просрочка) либо сообщением
+  от страницы-витрины: postMessage({type:'kds-card', variant:'2'}).
 -->
 <!-- ДС: токены + стили компонентов (по URL сайта ДС) -->
-<link rel="stylesheet" href="https://anders7rusk.github.io/iiko-ds-web/tokens.css">
-<link rel="stylesheet" href="https://anders7rusk.github.io/iiko-ds-web/components/index.css">
+<link rel="stylesheet" href="../../iiko-ds-web/tokens.css">
+<link rel="stylesheet" href="../../iiko-ds-web/components/index.css">
 <!-- Roboto из Google Fonts -->
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap">
-<!-- Иконки Material Icons -->
+<!-- Иконки Material Icons + аутлайновое семейство (как в карточках) -->
 <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined">
 <style>
+  /* Иконки — аутлайновые (правило проекта; в дефолтной карточке и макете тоже outlined) */
+  .material-icons{font-family:'Material Icons Outlined'}
   /* ═══ Страница, корпус планшета (подложка) и авто-масштаб ═══════════ */
   html,body{margin:0;height:100%;background:#111111;font-family:'Roboto','Helvetica Neue',Arial,sans-serif}
   .kds-viewport{position:fixed;inset:0;overflow:auto;display:flex;background:#111111}
@@ -200,11 +209,12 @@
   .kds-meta__item--warning{color:var(--kds-ic-warning)}
   .kds-meta__pay{font-size:20px;color:var(--kds-ic-positive);flex-shrink:0}
 
-  /* Комментарий — пунктирный бокс */
+  /* Комментарий заказа — пунктирный бокс (как в дефолтной карточке: обёртка 4/8 + бокс 4/12, r8) */
   .kds-comment{
     display:flex;align-items:flex-start;gap:8px;
-    color:var(--kds-text-3);font-size:16px;line-height:24px;letter-spacing:.25px;
-    padding:7px 12px;border:1px dashed var(--kds-dash);border-radius:12px;
+    margin:0 8px;padding:4px 12px;
+    color:var(--kds-text-3);font-size:16px;line-height:24px;letter-spacing:.5px;
+    border:1px dashed #e0e0e0;border-radius:8px;
   }
   .kds-comment .material-icons{font-size:20px;color:var(--kds-text-2);flex-shrink:0}
 
@@ -233,11 +243,20 @@
   .kds-row__label{font-size:12px;line-height:16px;letter-spacing:.4px;color:var(--kds-text-2)}
   .kds-row__name{font-size:18px;font-weight:500;line-height:24px;letter-spacing:.5px}
   .kds-row__name--neg{color:var(--kds-ic-negative)}
+  /* Количество — отдельный элемент рядом с названием (разбивает скрипт, см. applyQtyX):
+     количество выравнивается по ВЕРХНЕЙ строке названия (правка 16.09) */
+  .kds-name-line{display:flex;align-items:flex-start;gap:8px;font-size:18px;font-weight:500;line-height:24px;letter-spacing:.5px}
+  .kds-sub-line{display:flex;align-items:flex-start;gap:8px;min-width:0}
+  .kds-sub:has(.kds-qty){display:flex;align-items:center}
+  .kds-qty{flex:0 0 auto}
+  .kds-row__name, .kds-txt{min-width:0}
+  /* отменённая позиция: весь текст красный — количество тоже (оно вне названия) */
+  .kds-name-line:has(.kds-row__name--neg) .kds-qty{color:var(--kds-ic-negative)}
 
   /* Группа блюда (комбо / пицца с добавками): шапка + добавки + кнопка на всю высоту */
   .kds-row__body--group{padding:0;justify-content:flex-start}
   .kds-group__head{display:flex;flex-direction:column;padding:8px 12px;min-height:56px;justify-content:center}
-  .kds-group__note{margin:6px 8px;font-size:14px;line-height:20px}   /* нота в группе мельче: 14/20, бокс 56 */
+  .kds-group__note{margin:4px 8px 8px;padding:3px 3px 3px 7px;font-size:16px;line-height:24px}  /* нота в группе — бокс 56, блок 4/8/8 (макет 9293:15717) */
   .kds-group__subs{display:flex;flex-direction:column;align-items:stretch;padding:0}
   .kds-group__subs--pad{padding-bottom:4px}   /* длинные списки добавок — как в макете (196) */
   .kds-sub{display:flex;align-items:center;min-height:32px;padding:0 12px 0 34px;font-size:18px;font-weight:400;line-height:24px;letter-spacing:.5px}
@@ -272,11 +291,413 @@
     background:repeating-linear-gradient(90deg,var(--kds-dash) 0 7px,transparent 7px 14px);
   }
 
+  /* ═══ ВАРИАНТЫ (СКИНЫ) КАРТОЧКИ ДЛЯ ЭКРАНА — файлы из папки «Версии карточек» ═══
+     Включается параметром ?cards=1..8 (?tools=… нет) или сообщением от страницы-витрины:
+       frame.contentWindow.postMessage({type:'kds-card', variant:'3'}, '*')
+     Без параметра экран дефолтный. Разбивка:
+       1 — v2 (отступы 6, названия 20/28, действие — в шапке цветом статуса);
+       2 — v2 компактная (подложка 4 / шапка #3b3b43 / ряды 48 / кнопка 44);
+       3 — v2 плоская (ряды встык 56 + полоса-акцент справа, кнопка 56 с фоном 6 %);
+       4 — v3 (плоский список с разделителями 1 px, шапка мельче, комментарий в контенте);
+       5 — вар. 3 плоская (шапка цветом статуса, плоские ряды, строки гостя нет);
+       6 — моя: цветная шапка (заливка шапки цветом статуса);
+       7 — моя: полоса сверху (серая шапка #3b3b43 + полоса статуса 8 px сверху);
+       8 — Figma 10171: просрочка (карточка #1a1a24, шапка #3b3b43 с рамкой #333,
+           строки-«коробки» 56 с полосой #448aff справа, кнопки 54 × 54 #3b3b43,
+           комментарий/нота — штриховая линия #ffab40, время без иконки).
+     Цвет статуса для шапки — переменная --st, заданная по data-state карточки. */
+  .kds-card[data-state="waiting"]{--st:var(--kds-neutral)}
+  .kds-card[data-state="ready-to-cook"]{--st:var(--kds-warning)}
+  .kds-card[data-state="cooking"]{--st:var(--kds-accent)}
+  .kds-card[data-state="ready"]{--st:var(--kds-positive)}
+  .kds-card[data-state="cancelled"]{--st:var(--kds-negative)}
+  .kds-card[data-state="transfer-2"]{--st:var(--kds-neutral)}
+  html[data-cardskin] .kds-x{display:none}   /* «1х» — только в дефолте; в вариантах «х» нет */
+
+  /* ── 1. v2: меньше отступов, названия 20/28, шапка = статусная «кнопка» ── */
+  html[data-cardskin="1"] .kds-card__header{padding:6px;gap:6px;background:var(--st);cursor:pointer}
+  html[data-cardskin="1"] .kds-status{display:none}
+  html[data-cardskin="1"] .kds-card__footer{padding:0;gap:6px}
+  html[data-cardskin="1"] .kds-card__content{padding:6px;gap:4px}
+  html[data-cardskin="1"] .kds-row__name, html[data-cardskin="1"] .kds-name-line{font-size:20px;line-height:28px}
+  html[data-cardskin="1"] .kds-row__body{padding:6px 10px}
+  html[data-cardskin="1"] .kds-group__head{padding:6px 10px}
+  html[data-cardskin="1"] .kds-sub{min-height:28px;padding:3px 10px 3px 30px;font-size:16px;line-height:22px}
+  /* нота в группе: левый край (чёрточка) — на линии НАЗВАНИЯ блюда (не с цифры), 30 = 6 (контент) + 30;
+     линия — по верху первой строки (в файле v2 чёрточка 36 при названии 35.9) */
+  html[data-cardskin="1"] .kds-group__note{
+    margin:3px 10px 3px 30px;padding:3px 0;align-items:flex-start;
+    font-size:16px;line-height:22px;gap:8px;border:0;border-radius:0;
+  }
+  html[data-cardskin="1"] .kds-group__note .material-icons{display:none}
+  html[data-cardskin="1"] .kds-group__note::before{
+    content:"";flex:0 0 1px;width:1px;height:16px;
+    background:repeating-linear-gradient(to bottom,var(--kds-ic-warning) 0 3px,transparent 3px 6px);
+  }
+  /* комментарий заказа — пунктирный бокс 3/10 (как в v2), иконка-«квадрат» из его файла;
+     шрифт — как у ингредиентов (16/22) */
+  html[data-cardskin="1"] .kds-card__footer > .kds-comment{margin:0 6px;padding:3px 10px;border-radius:8px;gap:8px;font-size:16px;line-height:22px}
+  html[data-cardskin="1"] .kds-card__footer > .kds-comment .material-icons{display:none}
+  html[data-cardskin="1"] .kds-card__footer > .kds-comment::before{
+    content:"check_box_outline_blank";font-family:'Material Icons Outlined';font-size:20px;line-height:1;
+    color:var(--kds-text-3);flex-shrink:0;
+  }
+
+  /* ── 2. v2 компактная: подложка 4, шапка тёмная, ряды 48, кнопка 44 ── */
+  html[data-cardskin="2"] .kds-card{background:#1a1a24;padding:4px;gap:4px}
+  html[data-cardskin="2"] .kds-card__header{background:#3b3b43;border-radius:10px;padding:8px;gap:6px}
+  html[data-cardskin="2"] .kds-head-top{min-height:0}
+  html[data-cardskin="2"] .kds-status{display:none}
+  html[data-cardskin="2"] .kds-card__footer{padding:0;gap:6px}
+  html[data-cardskin="2"] .kds-num{font-size:20px;line-height:26px}
+  html[data-cardskin="2"] .kds-inline{font-size:14px;line-height:20px}
+  html[data-cardskin="2"] .kds-timer{font-size:20px;line-height:26px}
+  html[data-cardskin="2"] .kds-timer .material-icons{font-size:20px}
+  html[data-cardskin="2"] .kds-badge{font-size:20px;line-height:26px;padding:0 10px;border-radius:12px}
+  html[data-cardskin="2"] .kds-badge .material-icons{font-size:20px}
+  html[data-cardskin="2"] .kds-channel{font-size:14px;line-height:20px}
+  html[data-cardskin="2"] .kds-customer{font-size:14px;line-height:20px}
+  html[data-cardskin="2"] .kds-customer .material-icons{font-size:18px}
+  html[data-cardskin="2"] .kds-meta__items{gap:12px}
+  html[data-cardskin="2"] .kds-meta__item{font-size:14px;line-height:20px}
+  html[data-cardskin="2"] .kds-meta__item .material-icons{font-size:18px}
+  html[data-cardskin="2"] .kds-meta__pay{font-size:18px}
+  /* комментарий — оранжевый пунктир на подложке карточки (в файле он вне шапки) */
+  html[data-cardskin="2"] .kds-card__footer > .kds-comment{
+    display:flex;align-items:flex-start;gap:8px;   /* 8 — как у ноты в группе и как в дефолте */
+    margin:0 -8px -8px;padding:4px 0 4px 10px;
+    border:0;border-bottom:1px solid rgba(255,255,255,.08);border-radius:0 0 10px 10px;
+    background:#1a1a24;font-size:16px;line-height:22px;color:#d6d6d6;   /* шрифт — как у ингредиентов */
+  }
+  html[data-cardskin="2"] .kds-card__footer > .kds-comment .material-icons{display:none}
+  html[data-cardskin="2"] .kds-card__footer > .kds-comment::before{
+    content:"";flex:0 0 1px;width:1px;height:16px;
+    background:repeating-linear-gradient(to bottom,var(--kds-ic-warning) 0 3px,transparent 3px 6px);
+  }
+  /* нота в группе: чёрточка — на линии названия блюда (2 контент + 30); от линии до текста — 8 */
+  html[data-cardskin="2"] .kds-group__note{
+    margin:0 10px 0 30px;padding:2px 0;align-items:flex-start;
+    font-size:16px;line-height:22px;gap:8px;border:0;border-radius:0;
+  }
+  html[data-cardskin="2"] .kds-group__note .material-icons{display:none}
+  html[data-cardskin="2"] .kds-group__note::before{
+    content:"";flex:0 0 1px;width:1px;height:16px;
+    background:repeating-linear-gradient(to bottom,var(--kds-ic-warning) 0 3px,transparent 3px 6px);
+  }
+  html[data-cardskin="2"] .kds-card__content{padding:2px;gap:4px}
+  html[data-cardskin="2"] .kds-row{background:#2a2a33;border-right:2px solid var(--kds-ic-accent);border-radius:8px;min-height:56px}
+  html[data-cardskin="2"] .kds-row__body{min-height:56px;padding:0 10px}
+  html[data-cardskin="2"] .kds-row__label{display:none}
+  html[data-cardskin="2"] .kds-row__name, html[data-cardskin="2"] .kds-name-line{font-size:20px;line-height:26px}
+  html[data-cardskin="2"] .kds-group__head{padding:6px 10px;min-height:56px}
+  html[data-cardskin="2"] .kds-sub{min-height:26px;padding:2px 10px 2px 26px;font-size:16px;line-height:22px}
+  html[data-cardskin="2"] .kds-act{
+    flex:0 0 56px;width:56px;height:auto;align-self:stretch;margin:0 2px 0 0;
+    background:#3b3b43;border:1px solid #333;border-radius:8px;
+  }
+  html[data-cardskin="2"] .kds-act .material-icons{font-size:24px}
+  html[data-cardskin="2"] .kds-row--flat .kds-act{position:absolute;right:0;top:0;bottom:0;height:auto;width:56px;margin:0;background:transparent;border:0;border-radius:0}
+
+  /* ── 3. v2 плоская: ряды встык, полоса-акцент справа, кнопки 56 ── */
+  html[data-cardskin="3"] .kds-card{background:#1a1a24}
+  html[data-cardskin="3"] .kds-card__header{background:#3b3b43;padding:8px;gap:4px}
+  html[data-cardskin="3"] .kds-head-top{min-height:0}
+  html[data-cardskin="3"] .kds-status{display:none}
+  html[data-cardskin="3"] .kds-card__footer{padding:0;gap:4px}
+  html[data-cardskin="3"] .kds-num{font-size:20px;line-height:26px}
+  html[data-cardskin="3"] .kds-inline{font-size:14px;line-height:20px}
+  html[data-cardskin="3"] .kds-timer{font-size:20px;line-height:26px}
+  html[data-cardskin="3"] .kds-timer .material-icons{font-size:20px}
+  html[data-cardskin="3"] .kds-badge{font-size:20px;line-height:26px;padding:0 10px;border-radius:12px}
+  html[data-cardskin="3"] .kds-badge .material-icons{font-size:20px}
+  html[data-cardskin="3"] .kds-channel{font-size:14px;line-height:20px}
+  html[data-cardskin="3"] .kds-customer{font-size:14px;line-height:20px}
+  html[data-cardskin="3"] .kds-customer .material-icons{font-size:18px}
+  html[data-cardskin="3"] .kds-meta__items{gap:12px}
+  html[data-cardskin="3"] .kds-meta__item{font-size:14px;line-height:20px}
+  html[data-cardskin="3"] .kds-meta__item .material-icons{font-size:18px}
+  html[data-cardskin="3"] .kds-meta__pay{font-size:18px}
+  html[data-cardskin="3"] .kds-card__footer > .kds-comment{
+    display:flex;align-items:flex-start;gap:8px;   /* 8 — как у ноты в группе и как в дефолте */
+    margin:0 -8px -8px;padding:6px 0 6px 10px;
+    border:0;border-radius:0;background:#1a1a24;font-size:16px;line-height:22px;color:#d6d6d6;   /* шрифт — как у ингредиентов */
+  }
+  html[data-cardskin="3"] .kds-card__footer > .kds-comment .material-icons{display:none}
+  html[data-cardskin="3"] .kds-card__footer > .kds-comment::before{
+    content:"";flex:0 0 1px;width:1px;height:16px;
+    background:repeating-linear-gradient(to bottom,var(--kds-ic-warning) 0 3px,transparent 3px 6px);
+  }
+  /* нота в группе: чёрточка — на линии названия блюда (контент без паддинга → 30); от линии до текста — 8 */
+  html[data-cardskin="3"] .kds-group__note{
+    margin:2px 10px 0 30px;padding:2px 0;align-items:flex-start;
+    font-size:16px;line-height:22px;gap:8px;border:0;border-radius:0;
+  }
+  html[data-cardskin="3"] .kds-group__note .material-icons{display:none}
+  html[data-cardskin="3"] .kds-group__note::before{
+    content:"";flex:0 0 1px;width:1px;height:16px;
+    background:repeating-linear-gradient(to bottom,var(--kds-ic-warning) 0 3px,transparent 3px 6px);
+  }
+  html[data-cardskin="3"] .kds-card__content{padding:0 0 8px;gap:0}
+  html[data-cardskin="3"] .kds-row{background:#2a2a33;border-radius:0;min-height:56px;margin-bottom:2px;padding-right:4px;position:relative}
+  html[data-cardskin="3"] .kds-row__body{min-height:56px;padding:6px 10px}
+  html[data-cardskin="3"] .kds-row__label{display:none}
+  html[data-cardskin="3"] .kds-row__name, html[data-cardskin="3"] .kds-name-line{font-size:20px;line-height:26px}
+  /* полоса 4 px справа — цвет по кнопке строки (в файле — акцентные позиции) */
+  html[data-cardskin="3"] .kds-row::after{content:"";position:absolute;right:0;top:0;bottom:0;width:4px;background:var(--kds-ic-neutral)}
+  html[data-cardskin="3"] .kds-row:has(.kds-act--warning)::after{background:var(--kds-ic-warning)}
+  html[data-cardskin="3"] .kds-row:has(.kds-act--accent)::after{background:var(--kds-ic-accent)}
+  html[data-cardskin="3"] .kds-row:has(.kds-act--positive)::after{background:var(--kds-ic-positive)}
+  html[data-cardskin="3"] .kds-row:has(.kds-act--negative)::after{background:var(--kds-ic-negative)}
+  html[data-cardskin="3"] .kds-group__head{padding:6px 10px}
+  html[data-cardskin="3"] .kds-sub{min-height:26px;padding:2px 10px 2px 26px;font-size:16px;line-height:22px}
+  html[data-cardskin="3"] .kds-act{flex:0 0 56px;width:56px;height:auto;align-self:stretch;margin:0;background:rgba(255,255,255,.06);border:0;border-radius:0}
+  html[data-cardskin="3"] .kds-act .material-icons{font-size:24px}
+  html[data-cardskin="3"] .kds-row--flat .kds-act{position:absolute;right:0;top:0;bottom:0;height:auto;background:transparent}
+
+  /* ── 4. v3: плоский список с разделителями, шапка мельче, комментарий в контенте ── */
+  html[data-cardskin="4"] .kds-card__header{background:var(--kds-neutral);padding:8px;gap:4px}
+  html[data-cardskin="4"] .kds-head-top{min-height:0}
+  html[data-cardskin="4"] .kds-status{display:none}
+  html[data-cardskin="4"] .kds-card__footer{padding:0;gap:4px}
+  html[data-cardskin="4"] .kds-num{font-size:20px;line-height:26px}
+  html[data-cardskin="4"] .kds-inline{font-size:14px;line-height:20px}
+  html[data-cardskin="4"] .kds-timer{font-size:20px;line-height:26px}
+  html[data-cardskin="4"] .kds-timer .material-icons{font-size:20px}
+  html[data-cardskin="4"] .kds-badge{font-size:20px;line-height:26px;padding:0 10px;border-radius:12px}
+  html[data-cardskin="4"] .kds-badge .material-icons{font-size:20px}
+  html[data-cardskin="4"] .kds-channel{font-size:14px;line-height:20px}
+  html[data-cardskin="4"] .kds-customer{font-size:14px;line-height:20px}
+  html[data-cardskin="4"] .kds-customer .material-icons{font-size:18px}
+  html[data-cardskin="4"] .kds-meta__items{gap:10px}
+  html[data-cardskin="4"] .kds-meta__item{font-size:14px;line-height:20px}
+  html[data-cardskin="4"] .kds-meta__item .material-icons{font-size:18px}
+  html[data-cardskin="4"] .kds-meta__pay{font-size:18px}
+  /* комментарий — примечание над списком: тонкая линия, вне серой шапки */
+  html[data-cardskin="4"] .kds-card__footer > .kds-comment{
+    display:flex;align-items:flex-start;gap:8px;
+    margin:0 -8px -8px;padding:4px 8px;
+    border:0;border-bottom:1px solid rgba(255,255,255,.08);border-radius:0;
+    background:#121212;font-size:16px;line-height:22px;   /* шрифт — как у ингредиентов */
+  }
+  html[data-cardskin="4"] .kds-card__footer > .kds-comment .material-icons{display:none}
+  html[data-cardskin="4"] .kds-card__footer > .kds-comment::before{
+    content:"check_box_outline_blank";font-family:'Material Icons Outlined';font-size:18px;line-height:1;
+    color:var(--kds-text-3);flex-shrink:0;
+  }
+  /* нота в группе: чёрточка — на линии названия блюда (у v3 шапка группы 8 → 28) */
+  html[data-cardskin="4"] .kds-group__note{
+    margin:2px 8px 0 28px;padding:2px 0;align-items:flex-start;
+    font-size:16px;line-height:22px;gap:8px;border:0;border-radius:0;
+  }
+  html[data-cardskin="4"] .kds-group__note .material-icons{display:none}
+  html[data-cardskin="4"] .kds-group__note::before{
+    content:"";flex:0 0 1px;width:1px;height:16px;
+    background:repeating-linear-gradient(to bottom,var(--kds-ic-warning) 0 3px,transparent 3px 6px);
+  }
+  html[data-cardskin="4"] .kds-card__content{padding:0 0 8px;gap:0}
+  html[data-cardskin="4"] .kds-row{background:#212121;border-radius:0;border-bottom:1px solid rgba(255,255,255,.08);margin:0}
+  html[data-cardskin="4"] .kds-row__body{min-height:56px;padding:4px 8px}
+  html[data-cardskin="4"] .kds-row__name, html[data-cardskin="4"] .kds-name-line{font-size:20px;line-height:24px}
+  html[data-cardskin="4"] .kds-group__head{padding:4px 8px;min-height:56px}
+  html[data-cardskin="4"] .kds-sub{padding:2px 8px 2px 26px;min-height:26px;font-size:16px;line-height:22px}
+  html[data-cardskin="4"] .kds-act{flex:0 0 56px;width:56px;height:auto;align-self:stretch;margin:0;background:transparent;border:0;border-left:1px solid rgba(255,255,255,.08);border-radius:0}
+  html[data-cardskin="4"] .kds-act .material-icons{font-size:24px}
+  html[data-cardskin="4"] .kds-row--flat .kds-act{position:absolute;right:0;top:0;bottom:0;height:auto}
+
+  /* ── 5. вар. 3 плоская: шапка цветом статуса, плоские ряды, без строки гостя ── */
+  html[data-cardskin="5"] .kds-card{background:#1a1a24}
+  html[data-cardskin="5"] .kds-card__header{background:var(--st);padding:8px 10px;gap:4px}
+  html[data-cardskin="5"] .kds-head-top{min-height:0}
+  html[data-cardskin="5"] .kds-status{display:none}
+  html[data-cardskin="5"] .kds-card__footer{padding:0;gap:4px}
+  html[data-cardskin="5"] .kds-channel{font-size:14px;line-height:20px;color:#d6d6d6}
+  html[data-cardskin="5"] .kds-meta__items{gap:12px}
+  html[data-cardskin="5"] .kds-meta__item{font-size:14px;line-height:20px}
+  html[data-cardskin="5"] .kds-meta__item .material-icons{font-size:18px}
+  html[data-cardskin="5"] .kds-meta__pay{font-size:18px;color:#fff}
+  html[data-cardskin="5"] .kds-card__footer > .kds-comment{
+    display:flex;align-items:flex-start;gap:8px;   /* 8 — как у ноты в группе и как в дефолте */
+    margin:0 -10px -8px;padding:4px 10px;
+    border:0;border-radius:0;background:#1a1a24;font-size:16px;line-height:22px;color:#d6d6d6;   /* шрифт — как у ингредиентов */
+  }
+  html[data-cardskin="5"] .kds-card__footer > .kds-comment .material-icons{display:none}
+  html[data-cardskin="5"] .kds-card__footer > .kds-comment::before{
+    content:"";flex:0 0 1px;width:1px;height:16px;
+    background:repeating-linear-gradient(to bottom,var(--kds-ic-warning) 0 3px,transparent 3px 6px);
+  }
+  /* нота в группе: чёрточка — на линии названия блюда (контент без паддинга → 30); от линии до текста — 8 */
+  html[data-cardskin="5"] .kds-group__note{
+    margin:2px 10px 0 30px;padding:2px 0;align-items:flex-start;
+    font-size:16px;line-height:22px;gap:8px;border:0;border-radius:0;
+  }
+  html[data-cardskin="5"] .kds-group__note .material-icons{display:none}
+  html[data-cardskin="5"] .kds-group__note::before{
+    content:"";flex:0 0 1px;width:1px;height:16px;
+    background:repeating-linear-gradient(to bottom,var(--kds-ic-warning) 0 3px,transparent 3px 6px);
+  }
+  html[data-cardskin="5"] .kds-card__content{padding:0 0 8px;gap:0}
+  html[data-cardskin="5"] .kds-row{background:#2a2a33;border-radius:0;min-height:56px;margin-bottom:2px;padding-right:4px}
+  html[data-cardskin="5"] .kds-row__body{min-height:56px;padding:6px 10px}
+  html[data-cardskin="5"] .kds-row__label{display:none}
+  html[data-cardskin="5"] .kds-row__name, html[data-cardskin="5"] .kds-name-line{font-size:20px;line-height:26px}
+  html[data-cardskin="5"] .kds-group__head{padding:6px 10px}
+  html[data-cardskin="5"] .kds-sub{min-height:26px;padding:2px 10px 2px 26px;font-size:16px;line-height:22px}
+  html[data-cardskin="5"] .kds-act{flex:0 0 56px;width:56px;height:auto;align-self:stretch;margin:0;background:rgba(255,255,255,.06);border:0;border-radius:0}
+  html[data-cardskin="5"] .kds-act .material-icons{font-size:24px}
+  html[data-cardskin="5"] .kds-row--flat .kds-act{position:absolute;right:0;top:0;bottom:0;height:auto;background:transparent}
+
+  /* ВАЖНО (все скины): у группы тело всегда БЕЗ паддинга. Правила скинов задают паддинг
+     для .kds-row__body — класс тот же и у тела группы, из-за чего название и количество
+     группы уезжали вправо на этот паддинг по сравнению с обычными блюдами. */
+  html[data-cardskin] .kds-row__body--group{padding:0}
+
+  /* Вместо пунктирной линии у комментария и ноты — ИКОНКА КОММЕНТАРИЯ 16 px (сама линия выключается). */
+  html[data-cardskin="2"] .kds-card__footer > .kds-comment::before,
+  html[data-cardskin="3"] .kds-card__footer > .kds-comment::before,
+  html[data-cardskin="5"] .kds-card__footer > .kds-comment::before{display:none}
+  /* ОДНА И ТА ЖЕ иконка в шапке и в блюде — mode_comment 16 px, серый (--kds-ic-neutral):
+     у ноты в скинах через ::before (иконка из разметки в скинах скрыта),
+     у комментария — иконка из разметки. */
+  html[data-cardskin] .kds-group__note > .material-icons{display:none}
+  html[data-cardskin] .kds-group__note::before{
+    content:"mode_comment";font-family:'Material Icons Outlined';font-size:16px;line-height:1;
+    color:var(--kds-ic-neutral);flex:0 0 auto;width:auto;height:auto;background:none;
+  }
+  /* у v2/v3 комментарий раньше рисовал «квадрат» из файла — теперь та же иконка комментария */
+  html[data-cardskin="1"] .kds-card__footer > .kds-comment::before,
+  html[data-cardskin="4"] .kds-card__footer > .kds-comment::before{display:none}
+  html[data-cardskin="1"] .kds-card__footer > .kds-comment > .material-icons,
+  html[data-cardskin="2"] .kds-card__footer > .kds-comment > .material-icons,
+  html[data-cardskin="3"] .kds-card__footer > .kds-comment > .material-icons,
+  html[data-cardskin="4"] .kds-card__footer > .kds-comment > .material-icons,
+  html[data-cardskin="5"] .kds-card__footer > .kds-comment > .material-icons{
+    display:inline-block;font-size:16px;line-height:1;color:var(--kds-ic-neutral);flex:0 0 auto;
+  }
+
+  /* ── 6. моя: шапка целиком цветом статуса; номер/время 24, время с иконкой перед значением ── */
+  html[data-cardskin="6"] .kds-card__header{background:var(--st);padding:8px 14px 10px;gap:5px;border-radius:12px;cursor:pointer}
+  html[data-cardskin="6"] .kds-head-top{min-height:0;gap:0}
+  html[data-cardskin="6"] .kds-status{display:none}
+  html[data-cardskin="6"] .kds-card__footer{padding:0;gap:5px}
+  html[data-cardskin="6"] .kds-num{font-size:24px;line-height:32px}
+  html[data-cardskin="6"] .kds-timer{font-size:24px;line-height:32px}
+  html[data-cardskin="6"] .kds-timer .material-icons{font-size:22px;order:-1}
+  html[data-cardskin="6"] .kds-badge{height:30px;padding:0 6px;border-radius:10px;align-items:center;gap:6px;font-size:24px;line-height:30px}
+  html[data-cardskin="6"] .kds-badge .material-icons{font-size:22px;order:-1}
+  html[data-cardskin="6"] .kds-channel{font-size:14px;line-height:20px}
+  html[data-cardskin="6"] .kds-customer{font-size:14px;line-height:20px}
+  html[data-cardskin="6"] .kds-customer .material-icons{font-size:18px}
+  html[data-cardskin="6"] .kds-meta__items{gap:8px}
+  html[data-cardskin="6"] .kds-meta__item{font-size:14px;line-height:20px}
+  html[data-cardskin="6"] .kds-meta__item .material-icons{font-size:18px}
+  html[data-cardskin="6"] .kds-meta__pay{font-size:18px}
+  /* комментарий — как в карточке: линия-отбивка сверху, 16/22, иконка 16 из разметки */
+  html[data-cardskin="6"] .kds-card__footer > .kds-comment{
+    display:flex;align-items:center;gap:6px;margin:2px 0 0;padding:5px 0 0;
+    border:0;border-top:1px solid rgba(255,255,255,.3);border-radius:0;
+    font-size:16px;line-height:22px;color:inherit;
+  }
+  html[data-cardskin="6"] .kds-card__footer > .kds-comment > .material-icons{display:inline-block;font-size:16px;line-height:1;color:inherit}
+  /* просрочка на цветной шапке — как в карточке: у «пора готовить» плашку затемняем, у отмены — инверсия */
+  html[data-cardskin="6"] .kds-card[data-state="ready-to-cook"] .kds-badge--warning{background:#994000;color:#fff}
+  html[data-cardskin="6"] .kds-card[data-state="cancelled"] .kds-badge--negative{background:#fff;color:var(--kds-negative)}
+
+  /* ── 7. моя: серая шапка #3b3b43 + полоса статуса 8 px сверху ── */
+  html[data-cardskin="7"] .kds-card__header{background:#3b3b43;border-top:8px solid var(--st);border-radius:12px 12px 4px 4px;padding:8px 14px 10px 8px;gap:5px;cursor:pointer}
+  html[data-cardskin="7"] .kds-head-top{min-height:0;gap:0}
+  html[data-cardskin="7"] .kds-status{display:none}
+  html[data-cardskin="7"] .kds-card__footer{padding:0;gap:5px}
+  html[data-cardskin="7"] .kds-num{font-size:24px;line-height:32px}
+  html[data-cardskin="7"] .kds-timer{font-size:24px;line-height:32px}
+  html[data-cardskin="7"] .kds-timer .material-icons{font-size:22px;order:-1}
+  html[data-cardskin="7"] .kds-badge{height:30px;padding:0 6px;border-radius:10px;align-items:center;gap:6px;font-size:24px;line-height:30px}
+  html[data-cardskin="7"] .kds-badge .material-icons{font-size:22px;order:-1}
+  html[data-cardskin="7"] .kds-channel{font-size:14px;line-height:20px}
+  html[data-cardskin="7"] .kds-customer{font-size:14px;line-height:20px}
+  html[data-cardskin="7"] .kds-customer .material-icons{font-size:18px}
+  html[data-cardskin="7"] .kds-meta__items{gap:8px}
+  html[data-cardskin="7"] .kds-meta__item{font-size:14px;line-height:20px}
+  html[data-cardskin="7"] .kds-meta__item .material-icons{font-size:18px}
+  html[data-cardskin="7"] .kds-meta__pay{font-size:18px}
+  html[data-cardskin="7"] .kds-card__footer > .kds-comment{
+    display:flex;align-items:center;gap:6px;margin:2px 0 0;padding:5px 0 0;
+    border:0;border-top:1px solid rgba(255,255,255,.2);border-radius:0;
+    font-size:16px;line-height:22px;color:inherit;
+  }
+  html[data-cardskin="7"] .kds-card__footer > .kds-comment > .material-icons{display:inline-block;font-size:16px;line-height:1;color:inherit}
+  /* контент — плоский список, как у v3 (скин 4): строки встык с разделителями, кнопка без фона */
+  html[data-cardskin="7"] .kds-card__content{padding:2px 0 8px;gap:2px}
+  html[data-cardskin="7"] .kds-row{background:#212121;border-radius:0;border-bottom:1px solid rgba(255,255,255,.08);margin:0}
+  html[data-cardskin="7"] .kds-row__body{min-height:56px;padding:4px 8px}
+  html[data-cardskin="7"] .kds-row__name, html[data-cardskin="7"] .kds-name-line{font-size:20px;line-height:24px}
+  html[data-cardskin="7"] .kds-group__head{padding:4px 8px;min-height:56px}
+  html[data-cardskin="7"] .kds-sub{padding:2px 8px 2px 26px;min-height:26px;font-size:16px;line-height:22px}
+  html[data-cardskin="7"] .kds-act{flex:0 0 56px;width:56px;height:auto;align-self:stretch;margin:0;background:rgba(255,255,255,.06);border:0;border-radius:4px}
+  html[data-cardskin="7"] .kds-act .material-icons{font-size:24px}
+  html[data-cardskin="7"] .kds-row--flat .kds-act{position:absolute;right:0;top:0;bottom:0;height:auto}
+
+  /* ── 8. Figma 10171 — просрочка: серая шапка, строки-«коробки» с синей полосой справа ──
+     Палитра макета (узел 10171:4757): карточка #1a1a24, шапка #3b3b43 (рамка 1 px #333),
+     строки #2a2a33, кнопки #3b3b43 (стрелка #9e9e9e, удаление #ff5252), полоса справа
+     #448aff, комментарий и нота — штриховая линия #ffab40. Статуса в шапке нет,
+     время — без иконки и плашки. */
+  html[data-cardskin="8"] .kds-card{background:#1a1a24;padding:2px 0;gap:2px;border-radius:8px}
+  html[data-cardskin="8"] .kds-card__header{background:#3b3b43;border:1px solid #333;border-radius:8px;padding:0 2px;gap:0}
+  html[data-cardskin="8"] .kds-head-top{min-height:0;gap:0;padding:8px 8px 4px}
+  html[data-cardskin="8"] .kds-status{display:none}
+  html[data-cardskin="8"] .kds-card__footer{padding:0 8px 8px;gap:4px}
+  html[data-cardskin="8"] .kds-num{font-size:24px;line-height:32px}
+  html[data-cardskin="8"] .kds-inline{font-size:14px;line-height:20px}
+  html[data-cardskin="8"] .kds-timer{font-size:24px;line-height:32px}
+  html[data-cardskin="8"] .kds-timer .material-icons{display:none}   /* время без иконки — как в макете */
+  html[data-cardskin="8"] .kds-badge{height:30px;padding:0 6px;border-radius:10px;align-items:center;gap:6px;font-size:24px;line-height:30px}
+  html[data-cardskin="8"] .kds-badge .material-icons{display:none}
+  html[data-cardskin="8"] .kds-channel{font-size:14px;line-height:20px}
+  html[data-cardskin="8"] .kds-customer{font-size:14px;line-height:20px}
+  html[data-cardskin="8"] .kds-meta__items{gap:16px}
+  html[data-cardskin="8"] .kds-meta__item{font-size:14px;line-height:20px}
+  html[data-cardskin="8"] .kds-meta__pay{font-size:20px;color:#fff}
+  /* комментарий — отбивка 1 px #333 сверху и штриховая линия #ffab40 слева */
+  html[data-cardskin="8"] .kds-card__footer > .kds-comment{
+    display:flex;align-items:center;gap:0;margin:0;padding:4px 0;
+    border:0;border-top:1px solid #333;border-radius:0;
+    font-size:14px;line-height:20px;color:#d6d6d6;
+  }
+  html[data-cardskin="8"] .kds-card__footer > .kds-comment > .material-icons{display:none}
+  html[data-cardskin="8"] .kds-card__footer > .kds-comment::before{
+    content:"";flex:0 0 2px;width:2px;height:20px;margin:0 12px 0 8px;background:none;
+    background:repeating-linear-gradient(to bottom,var(--kds-ic-warning) 0 3px,transparent 3px 6px);
+  }
+  /* нота в группе — та же штриховая линия (комбо в макете нет — линия как язык варианта) */
+  html[data-cardskin="8"] .kds-group__note{
+    display:flex;align-items:center;gap:0;margin:2px 8px 2px 28px;padding:2px 0;
+    border:0;border-radius:0;font-size:14px;line-height:20px;color:#d6d6d6;
+  }
+  html[data-cardskin="8"] .kds-group__note::before{
+    content:"";flex:0 0 2px;width:2px;height:20px;margin:0 8px 0 0;background:none;
+    background:repeating-linear-gradient(to bottom,var(--kds-ic-warning) 0 3px,transparent 3px 6px);
+  }
+  html[data-cardskin="8"] .kds-card__content{padding:0 2px;gap:2px}
+  html[data-cardskin="8"] .kds-row{background:#2a2a33;border-radius:8px;border-right:2px solid #448aff;padding-right:2px;margin:0}
+  html[data-cardskin="8"] .kds-row:has(.kds-row__body--group){padding-bottom:4px}   /* низ группы — как в макете */
+  html[data-cardskin="8"] .kds-row__label{display:none}
+  html[data-cardskin="8"] .kds-row__name, html[data-cardskin="8"] .kds-name-line{font-size:20px;line-height:28px}
+  html[data-cardskin="8"] .kds-name-line{white-space:nowrap}   /* название одной строкой, как в макете (уходит в правый паддинг) */
+  html[data-cardskin="8"] .kds-name-line, html[data-cardskin="8"] .kds-sub-line{gap:4px}
+  html[data-cardskin="8"] .kds-sub{min-height:28px;padding:2px 8px 2px 28px;font-size:18px;line-height:24px}
+  html[data-cardskin="8"] .kds-act{flex:0 0 54px;width:54px;height:auto;align-self:stretch;margin:0;background:#3b3b43;border:0;border-radius:8px;color:var(--kds-ic-neutral)}
+  html[data-cardskin="8"] .kds-act .material-icons{font-size:28px}
+  html[data-cardskin="8"] .kds-row--flat .kds-act{position:absolute;right:2px;top:0;bottom:0;height:auto}
+  html[data-cardskin="8"] .kds-row--flat:has(.kds-row__body--group) .kds-act{bottom:4px}
+
   /* ═══ Сценарии UX-доработок (включаются со страницы-витрины ux-proposals.html) ═══ */
   /* Встраивание в витрину: корпус планшета рисует витрина */
   body.kds-embed{background:transparent}
   body.kds-embed .kds-device__body{padding:0;border:0;background:transparent;border-radius:0}
   body.kds-embed .kds-device__camera{display:none}
+  /* ?pad=0 — экран встык и прозрачный фон (страница версий показывает экран как есть) */
+  body.kds-embed-nopad{background:transparent}
+  body.kds-embed-nopad .kds-viewport{background:transparent}
 
   /* №1. «Отмена»: сворачивание карточки до шапки */
   .kds-card--collapsed .kds-card__footer,
@@ -592,7 +1013,7 @@
                 </div>
                 <span class="kds-meta__pay material-icons">credit_card</span>
               </div>
-              <div class="kds-comment"><span class="material-icons">chat_bubble_outline</span><span>Принести сразу морс</span></div>
+              <div class="kds-comment"><span class="material-icons">mode_comment</span><span>Принести сразу морс</span></div>
             </div>
           </div>
           <div class="kds-card__content">
@@ -617,7 +1038,7 @@
                   <span class="kds-row__name kds-row__name--neg">1х Пицца от шефа маленькая</span>
                 </div>
                 <div class="kds-comment kds-group__note kds-comment--special">
-                  <span class="material-icons">chat_bubble_outline</span><span>Убрать лук</span>
+                  <span class="material-icons">mode_comment</span><span>Убрать лук</span>
                 </div>
                 <div class="kds-group__subs kds-group__subs--pad">
                   <span class="kds-sub kds-sub--neg">1х Двойной сыр</span>
@@ -652,7 +1073,7 @@
                 </div>
                 <span class="kds-meta__pay material-icons">credit_card</span>
               </div>
-              <div class="kds-comment"><span class="material-icons">chat_bubble_outline</span><span>Обязательно нужно успеть доставить до 19:30</span></div>
+              <div class="kds-comment"><span class="material-icons">mode_comment</span><span>Обязательно нужно успеть доставить до 19:30</span></div>
             </div>
           </div>
           <div class="kds-card__content">
@@ -717,7 +1138,7 @@
                   <span class="kds-row__name">1х Комбо с пастой</span>
                 </div>
                 <div class="kds-comment kds-group__note kds-comment--special">
-                  <span class="material-icons">chat_bubble_outline</span><span>Капучино на растительном молоке</span>
+                  <span class="material-icons">mode_comment</span><span>Капучино на растительном молоке</span>
                 </div>
                 <div class="kds-group__subs">
                   <span class="kds-sub">1х Паста карбонара</span>
@@ -800,7 +1221,7 @@
                 </div>
                 <span class="kds-meta__pay material-icons">credit_card</span>
               </div>
-              <div class="kds-comment"><span class="material-icons">chat_bubble_outline</span><span>Оставить у дверей</span></div>
+              <div class="kds-comment"><span class="material-icons">mode_comment</span><span>Оставить у дверей</span></div>
             </div>
           </div>
           <div class="kds-card__content">
@@ -811,7 +1232,7 @@
                   <span class="kds-row__name">1х Комбо с пастой</span>
                 </div>
                 <div class="kds-comment kds-group__note kds-comment--special">
-                  <span class="material-icons">chat_bubble_outline</span><span>Капучино на растительном молоке</span>
+                  <span class="material-icons">mode_comment</span><span>Капучино на растительном молоке</span>
                 </div>
                 <div class="kds-group__subs">
                   <span class="kds-sub">1х Паста карбонара</span>
@@ -869,7 +1290,7 @@
                 </div>
                 <span class="kds-meta__pay material-icons">credit_card</span>
               </div>
-              <div class="kds-comment"><span class="material-icons">chat_bubble_outline</span><span>Побыстрее</span></div>
+              <div class="kds-comment"><span class="material-icons">mode_comment</span><span>Побыстрее</span></div>
             </div>
           </div>
           <div class="kds-card__content">
@@ -966,7 +1387,8 @@
 
     function apply(){
       var W = device.offsetWidth, H = device.offsetHeight;
-      var vw = viewport.clientWidth - 48, vh = viewport.clientHeight - 48;
+      var pad = document.body.classList.contains('kds-embed-nopad') ? 0 : 48;
+      var vw = viewport.clientWidth - pad, vh = viewport.clientHeight - pad;
       scale = (mode === 'fit') ? Math.min(vw / W, vh / H, 1) : 1;
       fit.style.width  = (W * scale) + 'px';
       fit.style.height = (H * scale) + 'px';
@@ -980,6 +1402,12 @@
       var w     = track * (scrollEl.clientWidth / scrollEl.scrollWidth);
       knob.style.width = w + 'px';
       knob.style.left  = (max > 0 ? (scrollEl.scrollLeft / max) * (track - w) : 0) + 'px';
+    }
+
+    /* Лента всегда с начала: браузер/перезагрузка могут восстановить старую прокрутку —
+       тогда первая карточка «прилипает» к кромке экрана и теряется её отступ. */
+    function resetFeed(){
+      if (scrollEl.scrollLeft !== 0){ scrollEl.scrollLeft = 0; syncKnob(); }
     }
 
     scrollEl.addEventListener('scroll', syncKnob);
@@ -1014,8 +1442,19 @@
     });
 
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ apply(); syncKnob(); });
-    window.addEventListener('load', function(){ apply(); syncKnob(); });
-    apply(); syncKnob();
+    window.addEventListener('load', function(){ apply(); syncKnob(); resetFeed(); });
+    window.addEventListener('pageshow', function(){ apply(); syncKnob(); resetFeed(); });
+    /* Пересчёт масштаба при ЛЮБОМ изменении размеров (окно, панель витрины, показ скрытой вкладки):
+       окно resize не всегда успевает за сменой размеров iframe — экран остаётся в старом масштабе
+       (мелкий с белым полем или крупнее кадра — карточки обрезаны). */
+    if (window.ResizeObserver){
+      var roRaf = 0;
+      new ResizeObserver(function(){
+        if (roRaf) cancelAnimationFrame(roRaf);
+        roRaf = requestAnimationFrame(function(){ roRaf = 0; apply(); syncKnob(); });
+      }).observe(viewport);
+    }
+    apply(); syncKnob(); resetFeed();
   })();
 </script>
 <script>
@@ -1072,11 +1511,54 @@
 
   /* встраивание в витрину — корпус планшета рисует витрина */
   if (/[?&]embed=1/.test(location.search)) body.classList.add('kds-embed');
+  /* ?pad=0 — экран встык (без полей 48) и прозрачный фон страницы */
+  var kdsNopad = /[?&]pad=0/.test(location.search);
+  if (kdsNopad){ body.classList.add('kds-embed-nopad'); document.documentElement.style.background = 'transparent'; }
+  /* ?cards=1..8 — вариант (скин) карточки: файлы из папки «Версии карточек» */
+  function setCardskin(v){
+    if (v === undefined || v === null || v === '' || v === '0') document.documentElement.removeAttribute('data-cardskin');
+    else document.documentElement.setAttribute('data-cardskin', String(v));
+    applyQtyX();
+    /* смена варианта на витрине — лента с начала: первая карточка с отступом от кромки экрана */
+    var feed = document.getElementById('kdsScreenViewport');
+    if (feed && feed.scrollLeft) feed.scrollLeft = 0;
+  }
+  /* Количество: текст «1х Название» один раз делится на количество и название — количество
+     становится отдельным элементом РЯДОМ с названием (не внутри него) и при переносе названия
+     на 2 строки остаётся по центру. «х» виден только в дефолте; в вариантах его скрывает CSS. */
+  function applyQtyX(){
+    Array.prototype.forEach.call(document.querySelectorAll('.kds-row__name, .kds-sub'), function(el){
+      if (el.dataset.qty !== undefined) return;
+      el.dataset.qty = el.textContent;
+      var m = el.textContent.match(/^(\d+)(х?)\s+(.+)$/);
+      if (!m) return;
+      var q = document.createElement('span'); q.className = 'kds-qty'; q.textContent = m[1];
+      var x = document.createElement('span'); x.className = 'kds-x'; x.textContent = m[2];
+      q.appendChild(x);
+      if (el.classList.contains('kds-row__name')){
+        /* название блюда: количество — отдельный элемент перед ним */
+        var line = document.createElement('span'); line.className = 'kds-name-line';
+        el.parentNode.insertBefore(line, el);
+        line.appendChild(q); line.appendChild(el);
+        el.textContent = m[3];
+      } else {
+        var subline = document.createElement('span'); subline.className = 'kds-sub-line';
+        var t = document.createElement('span'); t.className = 'kds-txt'; t.textContent = m[3];
+        el.textContent = '';
+        subline.appendChild(q); subline.appendChild(t);
+        el.appendChild(subline);
+      }
+    });
+  }
+  var kdsSkin = location.search.match(/[?&]cards=(\d+)/);
+  if (kdsSkin) setCardskin(kdsSkin[1]);
+  applyQtyX();
 
   function refresh(){
     body.setAttribute('data-ux-scenario', ux.scenario);
     body.setAttribute('data-ux-mode', ux.mode);
     applyScenario();
+    applyQtyX();
     markChanged();
     hideHint();
     /* режим показа: при смене слайда подпись НЕ скрываем — витрина плавно переставит её на новую цель */
@@ -1152,6 +1634,8 @@
 
   window.addEventListener('message', function(e){
     var d = e.data || {};
+    /* вариант карточки от страницы-витрины (страница версий) */
+    if (d.type === 'kds-card'){ setCardskin(d.variant); return; }
     /* сигнал ножной педали (пробел на витрине) */
     if (d.type === 'kds-pedal'){ if (ux.scenario === 'pedal' && ux.mode === 'proposal') firePedal(); return; }
     if (d.type !== 'kds-ux') return;
@@ -1342,7 +1826,7 @@
     Array.prototype.forEach.call(document.querySelectorAll('.kds-card'), function(el){ el.style.display = ''; });
     Array.prototype.forEach.call(document.querySelectorAll('[data-min]'), function(el){ el.removeAttribute('data-min'); });
     Array.prototype.forEach.call(document.querySelectorAll('.kds-comment .material-icons'), function(ic){
-      if (ic.textContent.trim() === 'delivery_dining') ic.textContent = 'chat_bubble_outline';
+      if (ic.textContent.trim() === 'delivery_dining') ic.textContent = 'mode_comment';
     });
     statusSnapshot.forEach(function(s){
       s.el.className = s.cls;

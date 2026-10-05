@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KDS — карточка заказа: кликабельная шапка (черновик-предложение)</title>
+<!-- ДС: токены + стили компонентов -->
+<link rel="stylesheet" href="../../../iiko-ds-web/tokens.css">
+<link rel="stylesheet" href="../../../iiko-ds-web/components/index.css">
+<!-- Roboto из Google Fonts -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap">
+<!-- Иконки: аутлайновое семейство (как в макете), классическое — фолбэк -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined">
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+<style>
+  /* каркас страницы */
+  html,body{margin:0;min-height:100%;background:#1e1e1e;font-family:'Roboto','Helvetica Neue',Arial,sans-serif;color:#fff}
+  body{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:28px 16px 48px;box-sizing:border-box;-webkit-font-smoothing:antialiased}
+  .material-icons{font-family:'Material Icons Outlined'}
+
+  /* шапка страницы демо */
+  .demo-head{width:360px;max-width:100%;margin-bottom:14px}
+  .demo-head h1{margin:0 0 4px;font-size:15px;font-weight:500;color:#e8e8e8}
+  .demo-head p{margin:0;font-size:12px;line-height:16px;color:#8a8a8a}
+
+  /* ═══ Карточка заказа (KDS) ══════════════════════════════════════════════
+     Основа — Figma «Web KDS Экраны»: ряд состояний 10386:119003,
+     карточка 10386:119042 («Заказ: готовится_время просрочено», доставка).
+     Предложение: шапка — сама кликабельная зона (отдельных кнопок в ней
+     нет — экран сенсорный, тач). Признак кликабельности:
+       1) шеврон «›» в правом верхнем углу шапки (как у раскрывающихся
+          панелей — взгляд сразу считывает «шапка интерактивная»);
+       2) отклик на тап: шапка подсвечивается под пальцем, после
+          отпускания — короткая вспышка.
+     Статус показывает только верхняя полоса — она и меняется при
+     смене статуса; в шапке статусных цветов нет.
+     Токены — из макета (в комментариях — имена переменных Figma),
+     нейтральная палитра — из ДС (--ds-palette-neutral-*). */
+  .card{
+    --kds-warn:#ea7806;        /* статус «просрочено» (Button/Warning/Outlined/Icon color) */
+    --kds-timer-warn:#ffab40;  /* таймер просрочки (Button-food-icon/Icon-warning) */
+    --kds-positive:#0f852c;    /* Button/Positive/Filled/Background */
+    --kds-check:#4caf50;       /* галка готовности (из макета) */
+    --kds-pay:#14b456;         /* иконка оплаты (зелёная, из макета) */
+    width:360px;max-width:100%;
+    border-radius:var(--ds-radius-2x,8px);
+    overflow:hidden;
+    font-family:'Roboto','Helvetica Neue',Arial,sans-serif;
+    color:#fff;
+  }
+
+  /* полоса статуса */
+  .card__status{height:16px;background:var(--kds-warn)}
+
+  /* ── Шапка = кликабельная зона ───────────────────────────────────────── */
+  .card__header{
+    position:relative;
+    background:var(--ds-palette-neutral-900,#333333);   /* Neutral/900 */
+    border:1px solid var(--ds-palette-neutral-700,#616161);border-top:0;
+    border-radius:0 0 var(--ds-radius-2x,8px) var(--ds-radius-2x,8px);
+    padding-bottom:4px;
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+    user-select:none;touch-action:manipulation;
+    transition:background-color .12s ease;
+  }
+  /* вспышка в момент тапа (не влияет на разметку) */
+  .card__header::before{
+    content:'';position:absolute;inset:0;pointer-events:none;z-index:2;
+    background:rgba(255,255,255,.14);
+    opacity:0;
+    transition:opacity .18s ease;
+  }
+  .card__header>*{position:relative;z-index:1}
+  .card__header:focus-visible{outline:2px solid rgba(255,255,255,.8);outline-offset:-2px}
+  @media (hover:hover){
+    .card__header:hover{background:#3a3a3a}
+  }
+  /* тач: пока палец на шапке — подсветка; после отпускания — вспышка */
+  .card__header:active{background:#454545}
+  .card__header.is-flash::before{opacity:1;transition:none}
+  .card__header.is-closed{cursor:default}
+
+  /* верх шапки: номер + таймер, затем источник */
+  .hdr-top{padding:8px 6px 4px;display:flex;flex-direction:column}
+  .hdr-row1{display:flex;align-items:center;gap:8px;min-height:32px}
+  .hdr-num{font-size:24px;line-height:32px;font-weight:500;letter-spacing:.5px}
+  .hdr-timer{margin-left:auto;display:inline-flex;align-items:center;gap:4px;
+    font-size:24px;line-height:32px;font-weight:500;letter-spacing:.5px;color:var(--kds-timer-warn)}
+  .hdr-timer .material-icons{display:none;font-size:24px;color:#fff}
+  /* признак кликабельности — шеврон в правом верхнем углу шапки */
+  .hdr-chevron{margin-left:4px;font-size:28px;line-height:32px;color:rgba(255,255,255,.85)}
+  .hdr-src{font-size:14px;line-height:20px;letter-spacing:.5px}
+
+  /* низ шапки: доставка · время · оплата, разделитель, комментарий */
+  .hdr-foot{padding:0 6px 4px;display:flex;flex-direction:column;gap:4px}
+  .hdr-row3{display:flex;align-items:center;gap:16px;min-height:24px}
+  .hdr-meta{display:flex;align-items:center;gap:4px;font-size:14px;line-height:20px;letter-spacing:.5px}
+  .hdr-meta .material-icons{font-size:20px}
+  .hdr-pay{margin-left:auto;width:20px;height:20px;border-radius:4px;background:var(--kds-pay);
+    display:flex;align-items:center;justify-content:center}
+  .hdr-pay .material-icons{font-size:14px;color:#fff}
+  .hdr-divider{height:1px;background:rgba(255,255,255,.14)}
+  .hdr-comment{display:flex;align-items:flex-start;gap:6px;padding:0 8px}
+  .hdr-comment .material-icons{font-size:16px;color:var(--kds-timer-warn);margin-top:2px;flex-shrink:0}
+  .hdr-comment p{margin:0;font-size:14px;line-height:20px;letter-spacing:.5px;color:var(--kds-timer-warn)}
+
+  /* заказ приготовлен (нажатие по шапке) */
+  .card.is-closed .card__status{background:var(--kds-positive)}
+  .card.is-closed .hdr-timer{color:#fff}
+  .card.is-closed .hdr-timer .material-icons{display:inline-block}
+  .card.is-closed .hdr-chevron{opacity:.35}
+
+  /* ── Тело: строки блюд ───────────────────────────────────────────────── */
+  .card__body{padding-top:4px;display:flex;flex-direction:column;gap:2px}
+  .dish{
+    background:var(--ds-palette-neutral-950,#212121);   /* Card-food/Food-list/Background */
+    border-radius:var(--ds-radius-2x,8px);
+    height:52px;display:flex;align-items:center;overflow:hidden;
+    padding-left:12px;box-sizing:border-box;
+  }
+  .dish--sub{margin-left:40px;width:320px;max-width:calc(100% - 40px)}
+  .dish__text{display:flex;flex-direction:column;flex:1;min-width:0;padding-right:4px}
+  .dish__guest{font-size:12px;line-height:16px;letter-spacing:.4px;color:var(--ds-palette-neutral-500,#9e9e9e)}
+  .dish__name{font-size:20px;line-height:28px;font-weight:500;letter-spacing:.5px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .dish__btn{
+    width:52px;height:52px;flex:0 0 52px;border:0;padding:0;
+    background:var(--ds-palette-neutral-800,#424242);   /* Button-food-icon/Background-default */
+    color:#fff;border-radius:var(--ds-radius-2x,8px);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;
+    transition:background-color .12s ease;-webkit-tap-highlight-color:transparent;touch-action:manipulation;
+  }
+  .dish__btn:hover{background:#4d4d4d}
+  .dish__btn:active{background:#565656}
+  .dish__btn .material-icons{font-size:28px}
+  .dish__btn .ic-check{display:none;color:var(--kds-check)}
+  .dish.is-done .dish__btn .ic-arrow{display:none}
+  .dish.is-done .dish__btn .ic-check{display:inline-block}
+
+  /* ── Обвязка демо (вне карточки) ─────────────────────────────────────── */
+  .demo-controls{width:360px;max-width:100%;margin-top:14px;display:flex;gap:8px}
+  .demo-btn{
+    height:36px;padding:0 14px;border-radius:8px;border:1px solid var(--ds-palette-neutral-700,#616161);
+    background:transparent;color:#e0e0e0;font:500 13px/16px 'Roboto',sans-serif;letter-spacing:.3px;
+    cursor:pointer;transition:background-color .15s ease;
+  }
+  .demo-btn:hover{background:#333}
+  .demo-btn:active{background:#3d3d3d}
+  .demo-hints{width:360px;max-width:100%;margin-top:12px;display:flex;flex-direction:column;gap:6px}
+  .demo-hints p{margin:0;font-size:12px;line-height:16px;color:#8a8a8a}
+  .demo-hints b{color:#c9c9c9;font-weight:500}
+</style>
+</head>
+<body>
+
+<div class="demo-head">
+  <h1>Карточка KDS · кликабельная шапка</h1>
+  <p>Черновик-предложение (28.09.2026). Основа — Figma «Web KDS Экраны»: ряд 10386:119003, карточка 10386:119042 («доставка, просрочено»). Шапка кликабельна целиком, без отдельных кнопок — экран сенсорный (тач). Статус — только полоса сверху, она и меняется при смене статуса.</p>
+</div>
+
+<article class="card" id="card">
+  <!-- полоса статуса: просрочено -->
+  <div class="card__status"></div>
+
+  <!-- шапка = кнопка «Приготовлен» -->
+  <div class="card__header" id="cardHeader" role="button" tabindex="0"
+       aria-label="Отметить заказ 1028 приготовленным">
+
+    <div class="hdr-top">
+      <div class="hdr-row1">
+        <div class="hdr-num">1028</div>
+        <div class="hdr-timer"><span class="material-icons">schedule</span>04:27</div>
+        <span class="material-icons hdr-chevron" aria-hidden="true">chevron_right</span>
+      </div>
+      <div class="hdr-src">#9753 Яндекс доставка</div>
+    </div>
+
+    <div class="hdr-foot">
+      <div class="hdr-row3">
+        <span class="hdr-meta"><span class="material-icons">person</span>Доставка</span>
+        <span class="hdr-meta"><span class="material-icons">schedule</span>19:30</span>
+        <span class="hdr-pay" title="Оплата"><span class="material-icons">credit_card</span></span>
+      </div>
+      <div class="hdr-divider"></div>
+      <div class="hdr-comment">
+        <span class="material-icons">chat_bubble_outline</span>
+        <p>Обязательно нужно успеть доставить до 19:30</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- тело: блюда -->
+  <div class="card__body">
+    <div class="dish">
+      <div class="dish__text">
+        <span class="dish__guest">Гость 1</span>
+        <span class="dish__name">Морс ягодный 1 л.</span>
+      </div>
+      <button class="dish__btn" type="button" aria-pressed="false" aria-label="Отметить блюдо «Морс ягодный 1 л.»">
+        <span class="material-icons ic-arrow">arrow_forward</span>
+        <span class="material-icons ic-check">check</span>
+      </button>
+    </div>
+
+    <div class="dish">
+      <div class="dish__text">
+        <span class="dish__guest">Гость 2</span>
+        <span class="dish__name">Салат с морепродуктами</span>
+      </div>
+      <button class="dish__btn" type="button" aria-pressed="false" aria-label="Отметить блюдо «Салат с морепродуктами»">
+        <span class="material-icons ic-arrow">arrow_forward</span>
+        <span class="material-icons ic-check">check</span>
+      </button>
+    </div>
+
+    <div class="dish dish--sub">
+      <div class="dish__text"><span class="dish__name">Тунец</span></div>
+      <button class="dish__btn" type="button" aria-pressed="false" aria-label="Отметить «Тунец»">
+        <span class="material-icons ic-arrow">arrow_forward</span>
+        <span class="material-icons ic-check">check</span>
+      </button>
+    </div>
+
+    <div class="dish dish--sub">
+      <div class="dish__text"><span class="dish__name">2 Креветки</span></div>
+      <button class="dish__btn" type="button" aria-pressed="false" aria-label="Отметить «2 Креветки»">
+        <span class="material-icons ic-arrow">arrow_forward</span>
+        <span class="material-icons ic-check">check</span>
+      </button>
+    </div>
+
+    <div class="dish">
+      <div class="dish__text">
+        <span class="dish__guest">Гость 1</span>
+        <span class="dish__name">Паста карбонара</span>
+      </div>
+      <button class="dish__btn" type="button" aria-pressed="false" aria-label="Отметить блюдо «Паста карбонара»">
+        <span class="material-icons ic-arrow">arrow_forward</span>
+        <span class="material-icons ic-check">check</span>
+      </button>
+    </div>
+  </div>
+</article>
+
+<div class="demo-controls">
+  <button class="demo-btn" id="markAll" type="button">Отметить все блюда</button>
+  <button class="demo-btn" id="reset" type="button">Сбросить</button>
+</div>
+
+<div class="demo-hints">
+  <p><b>Шапка кликабельна целиком.</b> Признак — шеврон «›» в правом верхнем углу шапки (как у раскрывающихся панелей).</p>
+  <p><b>Отклик на тап:</b> под пальцем шапка подсвечивается, после отпускания — короткая вспышка. Тап по любому месту шапки — заказ приготовлен.</p>
+  <p><b>Статус — только полоса сверху:</b> её цвет меняется при смене статуса (после закрытия заказа — зелёная).</p>
+</div>
+
+<script>
+(function(){
+  var card=document.getElementById('card');
+  var header=document.getElementById('cardHeader');
+  var dishes=Array.prototype.slice.call(card.querySelectorAll('.dish'));
+  var btns=Array.prototype.slice.call(card.querySelectorAll('.dish__btn'));
+
+  function setDone(d,on){
+    d.classList.toggle('is-done',on);
+    var b=d.querySelector('.dish__btn');
+    if(b){b.setAttribute('aria-pressed',on?'true':'false');}
+  }
+
+  btns.forEach(function(b){
+    b.addEventListener('click',function(){
+      var d=b.closest('.dish');
+      setDone(d,!d.classList.contains('is-done'));
+    });
+  });
+
+  function closeOrder(){
+    if(card.classList.contains('is-closed')){return;}
+    dishes.forEach(function(d){setDone(d,true);});
+    card.classList.add('is-closed');
+    header.classList.add('is-flash');
+    window.setTimeout(function(){header.classList.remove('is-flash');},260);
+  }
+  header.addEventListener('click',closeOrder);
+  header.addEventListener('keydown',function(e){
+    if(e.key==='Enter'||e.key===' '||e.key==='Spacebar'){e.preventDefault();closeOrder();}
+  });
+
+  document.getElementById('markAll').addEventListener('click',function(){
+    if(card.classList.contains('is-closed')){return;}
+    dishes.forEach(function(d){setDone(d,true);});
+  });
+  document.getElementById('reset').addEventListener('click',function(){
+    card.classList.remove('is-closed');
+    dishes.forEach(function(d){setDone(d,false);});
+  });
+})();
+</script>
+</body>
+</html>
