@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PB-8108 · механизмы связки набора в карточке</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{--screen:#121212;--row:#212121;--btn:#3B3B43;--txt:#fff;--txt2:#D6D6D6;--muted:#9E9E9E;--seen:#BDBDBD;--cook:#448AFF;--ready:#14B456;--rail:#5A5A5A;--frame:#5A5A5A}
+  *{box-sizing:border-box}
+  body{margin:0;background:#F5F6F7;color:#333;font-family:Roboto,-apple-system,"Segoe UI",Arial,sans-serif}
+  .wrap{max-width:800px;margin:0 auto;padding:24px 20px 50px}
+  h1{font-size:21px;font-weight:500;margin:0 0 4px}
+  .sub{font-size:13px;color:#757575;margin:0 0 22px}
+  .grid{display:flex;flex-wrap:wrap;gap:22px}
+  .col{width:360px;flex:0 0 auto}
+  .cap-name{font-size:14px;font-weight:500;margin:0 0 1px}
+  .cap-num{font-size:11.5px;color:#757575;margin:0 0 8px}
+  .screen{width:360px;background:var(--screen);border-radius:12px;padding:8px}
+  .chead{background:rgba(38,81,181,.12);border-radius:8px;padding:4px 6px;margin-bottom:4px}
+  .ctop{display:flex;justify-content:space-between;align-items:baseline}
+  .cnum,.ctimer{font-size:24px;line-height:32px;font-weight:500;color:#fff}
+  .cmeta{display:flex;gap:6px;align-items:center;font-size:14px;line-height:20px;color:#fff;opacity:.9}
+  .cshop{font-size:14px;color:#BDBDBD}
+  .cdot{width:3px;height:3px;border-radius:50%;background:#616161}
+  .cguest{font-size:14px;color:#fff}
+  .cfoot{display:flex;gap:10px;font-size:12px;line-height:16px;color:#9E9E9E;margin-top:2px}
+  .ghead{padding:4px 8px;margin-bottom:4px;background:var(--row);border-radius:8px}
+  .gmeta{display:flex}
+  .guest{font-size:12px;line-height:16px;color:var(--txt2)}
+  .gtitle{display:flex;align-items:baseline;gap:8px;min-width:0}
+  .ico{width:16px;height:16px;flex:0 0 16px;color:var(--muted)}
+  .name{font-size:22px;line-height:28px;font-weight:500;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+  .cap{font-size:14px;line-height:16px;font-weight:500;color:var(--seen);white-space:nowrap;flex:0 0 auto;margin-left:auto}
+  .row{height:52px;background:var(--row);border-radius:8px;display:flex;align-items:center;justify-content:space-between;padding-left:8px;margin-top:4px}
+  .row.nest{margin-left:16px}
+  .btn{width:52px;height:52px;background:var(--btn);border-radius:8px;display:flex;align-items:center;justify-content:center;flex:0 0 52px}
+  .btn svg{width:28px;height:28px}
+  .btn--cook svg{fill:var(--cook)} .btn--ready svg{fill:var(--ready)}
+  .cbody{padding-top:0}
+
+  /* рейл */
+  .stack{position:relative;margin-left:16px;margin-top:4px}
+  .stack .row{margin-left:10px}
+  .stack .row:first-child{margin-top:0}
+  .stack::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--rail);border-radius:2px}
+  .stack--dash::before{background:none;border-left:2px dashed var(--rail)}
+
+  /* рамки */
+  .frame{border:1px solid var(--frame);border-radius:10px;padding:4px;margin-top:4px}
+  .frame .row{margin-top:4px}
+  .frame .row:first-of-type{margin-top:0}
+  .frame .ghead{margin-bottom:0}
+  .frame--dash{border-style:dashed}
+  .frame--rows{margin-left:0}
+  .frame--rows .row{margin-left:0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Связка набора: шесть механизмов в полной карточке</h1>
+  <p class="sub">Один заказ, один и тот же состав. Каждая карточка — целиком: шапка, салат вне набора, группа «Ланч», бургер вне набора.</p>
+  <div class="grid">
+    <div class="col">
+      <p class="cap-name">Без связки</p>
+      <p class="cap-num">как сейчас: отступ 16, зазор 4</p>
+      
+    <div class="screen">
+      <div class="chead">
+        <div class="ctop"><span class="cnum">214</span><span class="ctimer">04:26</span></div>
+        <div class="cmeta"><span class="cshop">#214</span><span class="cdot"></span><span class="cguest">Гость 1</span></div>
+        <div class="cfoot"><span>Константинопольский</span><span>Стол 4</span></div>
+      </div>
+      <div class="cbody">
+        <div class="row plain"><span class="name">Салат</span><span class="btn btn--ready"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span></div>
+        <div class="ghead"><div class="gmeta"><span class="guest">Гость 1</span></div><div class="gtitle"><svg class="ico" viewBox="0 0 24 24"><path fill="currentColor" d="M13.325 13C12.792 12.25 12.088 11.729 11.213 11.438C10.338 11.146 9.433 11 8.5 11C7.567 11 6.663 11.146 5.788 11.438C4.913 11.729 4.208 12.25 3.675 13H13.325ZM1 15C1 13.183 1.758 11.729 3.275 10.638C4.792 9.546 6.533 9 8.5 9C10.467 9 12.208 9.546 13.725 10.638C15.242 11.729 16 13.183 16 15H1ZM1 19V17H16V19H1ZM18 23V21H19.4L20.8 7H11.25L11 5H16V1H18V5H23L21.35 21.55C21.3 21.967 21.117 22.313 20.8 22.588C20.483 22.863 20.117 23 19.7 23H18ZM2 23C1.717 23 1.479 22.904 1.288 22.713C1.096 22.521 1 22.283 1 22V21H16V22C16 22.283 15.904 22.521 15.713 22.713C15.521 22.904 15.283 23 15 23H2Z"/></svg><span class="name">Ланч</span><span class="cap">2 из 3 блюд</span></div></div><div class="row nest"><span class="name">Бургер</span><span class="btn btn--cook"><svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg></span></div><div class="row nest"><span class="name">Картофель</span><span class="btn btn--ready"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span></div>
+        <div class="row plain"><span class="name">Бургер</span><span class="btn btn--ready"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span></div>
+      </div>
+    </div>
+    </div>
+    <div class="col">
+      <p class="cap-name">Рейл</p>
+      <p class="cap-num">линия 2 px, сплошная</p>
+      
+    <div class="screen">
+      <div class="chead">
+        <div class="ctop"><span class="cnum">214</span><span class="ctimer">04:26</span></div>
+        <div class="cmeta"><span class="cshop">#214</span><span class="cdot"></span><span class="cguest">Гость 1</span></div>
+        <div class="cfoot"><span>Константинопольский</span><span>Стол 4</span></div>
+      </div>
+      <div class="cbody">
+        <div class="row plain"><span class="name">Салат</span><span class="btn btn--ready"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span></div>
+        <div class="ghead"><div class="gmeta"><span class="guest">Гость 1</span></div><div class="gtitle"><svg class="ico" viewBox="0 0 24 24"><path fill="currentColor" d="M13.325 13C12.792 12.25 12.088 11.729 11.213 11.438C10.338 11.146 9.433 11 8.5 11C7.567 11 6.663 11.146 5.788 11.438C4.913 11.729 4.208 12.25 3.675 13H13.325ZM1 15C1 13.183 1.758 11.729 3.275 10.638C4.792 9.546 6.533 9 8.5 9C10.467 9 12.208 9.546 13.725 10.638C15.242 11.729 16 13.183 16 15H1ZM1 19V17H16V19H1ZM18 23V21H19.4L20.8 7H11.25L11 5H16V1H18V5H23L21.35 21.55C21.3 21.967 21.117 22.313 20.8 22.588C20.483 22.863 20.117 23 19.7 23H18ZM2 23C1.717 23 1.479 22.904 1.288 22.713C1.096 22.521 1 22.283 1 22V21H16V22C16 22.283 15.904 22.521 15.713 22.713C15.521 22.904 15.283 23 15 23H2Z"/></svg><span class="name">Ланч</span><span class="cap">2 из 3 блюд</span></div></div><div class="stack"><div class="row"><span class="name">Бургер</span><span class="btn btn--cook"><svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg></span></div><div class="row"><span class="name">Картофель</span><span class="btn btn--ready"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span></div></div>
+        <div class="row plain"><span class="name">Бургер</span><span class="btn btn--ready"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span></div>
+      </div>
+    </div>
+    </div>
+    <div class="col">
+      <p class="cap-name">Рейл пунктиром</p>
+      <p class="cap-num">линия 2 px, штрих 4/4</p>
+      
+    <div class="screen">
+      <div class="chead">
+        <div class="ctop"><span class="cnum">214</span><span class="ctimer">04:26</span></div>
+        <div class="cmeta"><span class="cshop">#214</span><span class="cdot"></span><span class="cguest">Гость 1</span></div>
+        <div class="cfoot"><span>Константинопольский</span><span>Стол 4</span></div>
+      </div>
+      <div class="cbody">
+        <div class="row plain"><span class="name">Салат</span><span class="btn btn--ready"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span></div>
+        <div class="ghead"><div class="gmeta"><span class="guest">Гость 1</span></div><div class="gtitle"><svg class="ico" viewBox="0 0 24 24"><path fill="currentColor" d="M13.325 13C12.792 12.25 12.088 11.729 11.213 11.438C10.338 11.146 9.433 11 8.5 11C7.567 11 6.663 11.146 5.788 11.438C4.913 11.729 4.208 12.25 3.675 13H13.325ZM1 15C1 13.183 1.758 11.729 3.275 10.638C4.792 9.546 6.533 9 8.5 9C10.467 9 12.208 9.546 13.725 10.638C15.242 11.729 16 13.183 16 15H1ZM1 19V17H16V19H1ZM18 23V21H19.4L20.8 7H11.25L11 5H16V1H18V5H23L21.35 21.55C21.3 21.967 21.117 22.313 20.8 22.588C20.483 22.863 20.117 23 19.7 23H18ZM2 23C1.717 23 1.479 22.904 1.288 22.713C1.096 22.521 1 22.283 1 22V21H16V22C16 22.283 15.904 22.521 15.713 22.713C15.521 22.904 15.283 23 15 23H2Z"/></svg><span class="name">Ланч</span><span class="cap">2 из 3 блюд</span></div></div><div class="stack stack--dash"><div class="row"><span class="name">Бургер</span><span class="btn btn--cook"><svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg></span></div><div class="row"><span class="name">Картофель</span><span class="btn btn--ready"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span></div></div>
+        <div class="row plain"><span class="name">Бургер</span><span class="btn btn--ready"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span></div>
+      </div>
+    </div>
+    </div>
+    <div class="col">
+      <p class="cap-name">Рамка вокруг группы</p>
+      <p class="cap-num">1 px, радиус 10, паддинг 4</p>
+      
+    <div class="screen">
+      <div class="chead">
+        <div class="ctop"><span class="cnum">214</span><span class="ctimer">04:26</span></div>
+        <div class="cmeta"><span class="cshop">#214</span><span class="cdot"></span><span class="cguest">Гость 1</span></div>
+        <div class="cfoot"><span>Константинопольский</span><span>Стол 4</span></div>
+      </div>
+      <div class="cbody">
+        <div class="row plain"><span class="name">Салат</span><span class="btn btn--ready"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span></div>
+        <div class="frame"><div class="ghead"><div class="gmeta"><span class="guest">Гость 1</span></div><div class="gtitle"><svg class="ico" viewBox="0 0 24 24"><path fill="currentColor" d="M13.325 13C12.792 12.25 12.088 11.729 11.213 11.438C10.338 11.146 9.433 11 8.5 11C7.567 11 6.663 11.146 5.788 11.438C4.913 11.729 4.208 12.25 3.675 13H13.325ZM1 15C1 13.183 1.758 11.729 3.275 10.638C4.792 9.546 6.533 9 8.5 9C10.467 9 12.208 9.546 13.725 10.638C15.242 11.729 16 13.183 16 15H1ZM1 19V17H16V19H1ZM18 23V21H19.4L20.8 7H11.25L11 5H16V1H18V5H23L21.35 21.55C21.3 21.967 21.117 22.313 20.8 22.588C20.483 22.863 20.117 23 19.7 23H18ZM2 23C1.717 23 1.479 22.904 1.288 22.713C1.096 22.521 1 22.283 1 22V21H16V22C16 22.283 15.904 22.521 15.713 22.713C15.521 22.904 15.283 23 15 23H2Z"/></svg><span class="name">Ланч</span><span class="cap">2 из 3 блюд</span></div></div><div class="row nest"><span class="name">Бургер</span><span class="btn btn--cook"><svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg></span></div><div class="row nest"><span class="name">Картофель</span><span class="btn btn--ready"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span></div></div>
+        <div class="row plain"><span class="name">Бургер</span><span class="btn btn--ready"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span></div>
+      </div>
+    </div>
+    </div>
+    <div class="col">
+      <p class="cap-name">Рамка пунктиром</p>
+      <p class="cap-num">1 px штрихом, радиус 10</p>
+      
+    <div class="screen">
+      <div class="chead">
+        <div class="ctop"><span class="cnum">214</span><span class="ctimer">04:26</span></div>
+        <div class="cmeta"><span class="cshop">#214</span><span class="cdot"></span><span class="cguest">Гость 1</span></div>
+        <div class="cfoot"><span>Константинопольский</span><span>Стол 4</span></div>
+      </div>
+      <div class="cbody">
+        <div class="row plain"><span class="name">Салат</span><span class="btn btn--ready"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span></div>
+        <div class="frame frame--dash"><div class="ghead"><div class="gmeta"><span class="guest">Гость 1</span></div><div class="gtitle"><svg class="ico" viewBox="0 0 24 24"><path fill="currentColor" d="M13.325 13C12.792 12.25 12.088 11.729 11.213 11.438C10.338 11.146 9.433 11 8.5 11C7.567 11 6.663 11.146 5.788 11.438C4.913 11.729 4.208 12.25 3.675 13H13.325ZM1 15C1 13.183 1.758 11.729 3.275 10.638C4.792 9.546 6.533 9 8.5 9C10.467 9 12.208 9.546 13.725 10.638C15.242 11.729 16 13.183 16 15H1ZM1 19V17H16V19H1ZM18 23V21H19.4L20.8 7H11.25L11 5H16V1H18V5H23L21.35 21.55C21.3 21.967 21.117 22.313 20.8 22.588C20.483 22.863 20.117 23 19.7 23H18ZM2 23C1.717 23 1.479 22.904 1.288 22.713C1.096 22.521 1 22.283 1 22V21H16V22C16 22.283 15.904 22.521 15.713 22.713C15.521 22.904 15.283 23 15 23H2Z"/></svg><span class="name">Ланч</span><span class="cap">2 из 3 блюд</span></div></div><div class="row nest"><span class="name">Бургер</span><span class="btn btn--cook"><svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg></span></div><div class="row nest"><span class="name">Картофель</span><span class="btn btn--ready"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span></div></div>
+        <div class="row plain"><span class="name">Бургер</span><span class="btn btn--ready"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span></div>
+      </div>
+    </div>
+    </div>
+    <div class="col">
+      <p class="cap-name">Рамка только у строк</p>
+      <p class="cap-num">заголовок вне рамки</p>
+      
+    <div class="screen">
+      <div class="chead">
+        <div class="ctop"><span class="cnum">214</span><span class="ctimer">04:26</span></div>
+        <div class="cmeta"><span class="cshop">#214</span><span class="cdot"></span><span class="cguest">Гость 1</span></div>
+        <div class="cfoot"><span>Константинопольский</span><span>Стол 4</span></div>
+      </div>
+      <div class="cbody">
+        <div class="row plain"><span class="name">Салат</span><span class="btn btn--ready"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span></div>
+        <div class="ghead"><div class="gmeta"><span class="guest">Гость 1</span></div><div class="gtitle"><svg class="ico" viewBox="0 0 24 24"><path fill="currentColor" d="M13.325 13C12.792 12.25 12.088 11.729 11.213 11.438C10.338 11.146 9.433 11 8.5 11C7.567 11 6.663 11.146 5.788 11.438C4.913 11.729 4.208 12.25 3.675 13H13.325ZM1 15C1 13.183 1.758 11.729 3.275 10.638C4.792 9.546 6.533 9 8.5 9C10.467 9 12.208 9.546 13.725 10.638C15.242 11.729 16 13.183 16 15H1ZM1 19V17H16V19H1ZM18 23V21H19.4L20.8 7H11.25L11 5H16V1H18V5H23L21.35 21.55C21.3 21.967 21.117 22.313 20.8 22.588C20.483 22.863 20.117 23 19.7 23H18ZM2 23C1.717 23 1.479 22.904 1.288 22.713C1.096 22.521 1 22.283 1 22V21H16V22C16 22.283 15.904 22.521 15.713 22.713C15.521 22.904 15.283 23 15 23H2Z"/></svg><span class="name">Ланч</span><span class="cap">2 из 3 блюд</span></div></div><div class="frame frame--rows"><div class="row"><span class="name">Бургер</span><span class="btn btn--cook"><svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg></span></div><div class="row"><span class="name">Картофель</span><span class="btn btn--ready"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span></div></div>
+        <div class="row plain"><span class="name">Бургер</span><span class="btn btn--ready"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span></div>
+      </div>
+    </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
