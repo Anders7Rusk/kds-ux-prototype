@@ -34,6 +34,7 @@
   .btn--cook svg{fill:var(--cook)} .btn--ready svg{fill:var(--ready)}
   .nest{margin-left:16px}
   .head-line{padding:4px 8px;margin-bottom:2px}
+  .head-line--box{background:var(--row);border-radius:8px;margin-bottom:2px}
   .head-line--one{padding:2px 8px;margin-bottom:2px}
   .head-line .meta{display:flex;align-items:baseline}
   .head-line .title{display:flex;align-items:baseline;gap:8px;min-width:0}
@@ -96,7 +97,7 @@
     <div class="col">
       <p class="label">C · рекомендую<span><b>Подпись: гость / название + цифры</b></span></p>
       <div class="screen">
-        <div class="head-line">
+        <div class="head-line head-line--box">
           <div class="meta"><span class="guest">Гость 1</span></div>
           <div class="title"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M13.325 13C12.792 12.25 12.088 11.729 11.213 11.438C10.338 11.146 9.433 11 8.5 11C7.567 11 6.663 11.146 5.788 11.438C4.913 11.729 4.208 12.25 3.675 13H13.325ZM1 15C1 13.183 1.758 11.729 3.275 10.638C4.792 9.546 6.533 9 8.5 9C10.467 9 12.208 9.546 13.725 10.638C15.242 11.729 16 13.183 16 15H1ZM1 19V17H16V19H1ZM18 23V21H19.4L20.8 7H11.25L11 5H16V1H18V5H23L21.35 21.55C21.3 21.967 21.117 22.313 20.8 22.588C20.483 22.863 20.117 23 19.7 23H18ZM2 23C1.717 23 1.479 22.904 1.288 22.713C1.096 22.521 1 22.283 1 22V21H16V22C16 22.283 15.904 22.521 15.713 22.713C15.521 22.904 15.283 23 15 23H2Z"/></svg><span class="name">Ланч</span><span class="cap">2 из 3 блюд</span></div>
         </div>
@@ -104,7 +105,7 @@
         <div class="row nest"><span class="name">Картофель</span><span class="btn btn--ready"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span></div>
         <div class="row"><span class="name">Бургер</span><span class="btn btn--ready"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span></div>
       </div>
-      <p class="notes"><b>52 px.</b> Заголовок — текст, без подложки: он не притворяется позицией. Гость на своей строке, цифры на строке названия — видно, к чему относятся. Название получает 244 px из 328.<br><span class="good">Баланс высоты и ясности.</span></p>
+      <p class="notes"><b>52 px.</b> Коробка сохранена — подложка у блока набора остаётся. Выигрыш по высоте даёт не снятие фона, а удаление второй подписи: было четыре строки, стало две. Цифры на строке названия, гость сохранён, название получает 244 px.<br><span class="good">То же, что база, но на 34 px ниже.</span></p>
     </div>
 
     <div class="col">
@@ -143,7 +144,7 @@
     <tbody>
       <tr><td>A · коробка, 4 строки</td><td class="num">86</td><td>строкой ниже названия</td><td class="num">328</td><td class="bad">да</td><td class="bad">да</td></tr>
       <tr><td>B · коробка, 1 строка</td><td class="num">52</td><td>названием</td><td class="num">244</td><td class="bad">да</td><td class="bad">да</td></tr>
-      <tr class="pick"><td><b>C · подпись, 2 строки</b></td><td class="num"><b>52</b></td><td><b>названием</b></td><td class="num"><b>244</b></td><td class="good">нет</td><td class="good">нет</td></tr>
+      <tr class="pick"><td><b>C · коробка, 2 строки</b></td><td class="num"><b>52</b></td><td><b>названием</b></td><td class="num"><b>244</b></td><td class="good">как в базе</td><td>частично</td></tr>
       <tr><td>D · подпись, 3 строки</td><td class="num">73</td><td>отдельной строкой</td><td class="num">328</td><td class="good">нет</td><td class="good">нет</td></tr>
       <tr><td>E · одна строка</td><td class="num">32</td><td>названием</td><td class="num">~180</td><td class="good">нет</td><td class="good">нет</td></tr>
     </tbody>
@@ -162,7 +163,7 @@
 
   <div class="final">
     <h3>Вывод: C</h3>
-    <p style="margin:0 0 10px;font-size:14px;line-height:1.6">C даёт то же, что D, но на 21 px ниже, и то же, что E, но с названием на 64 px шире. Подложку не добавляет — наоборот, убирает единственную лишнюю. Цифры стоят на строке названия, поэтому читаются как «у набора 2 из 3», а не как «у гостя 2 из 3» и не как «2 из 3 готово».</p>
+    C — это база без лишней строки: коробка и подложка остаются, уходит только вторая подпись, поэтому заголовок 52 px вместо 86. Цифры стоят на строке названия, поэтому читаются как «у набора 2 из 3 блюд», а не как «у гостя 2 из 3 блюд».
     <p style="margin:0;font-size:14px;line-height:1.6">Правила для реализации: гость 12/16 `#D6D6D6`; вторая строка — значок 16 px `#9E9E9E`, название 22/28 Medium `#FFFFFF`, цифры 14/16 Medium `#BDBDBD` справа; заголовок 52 px, без фона и радиусов; строки 52 px `#212121` R8 с отступом 16; зазор 4 px.</p>
   </div>
 
