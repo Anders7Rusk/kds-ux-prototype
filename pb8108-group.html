@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PB-8108 · как связать блюда набора в один блок</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{--screen:#121212;--row:#212121;--btn:#3B3B43;--txt:#fff;--txt2:#D6D6D6;--muted:#9E9E9E;--seen:#BDBDBD;--cook:#448AFF;--ready:#14B456;--rail:#4D4D4D;--sep:#2C2C2C}
+  *{box-sizing:border-box}
+  body{margin:0;background:#F5F6F7;color:#333;font-family:Roboto,-apple-system,"Segoe UI",Arial,sans-serif}
+  .wrap{max-width:1240px;margin:0 auto;padding:28px 24px 70px}
+  h1{font-size:24px;font-weight:500;margin:0 0 6px}
+  .lead{color:#616161;font-size:14px;margin:0 0 8px;max-width:860px}
+  .rule{color:#616161;font-size:13px;margin:0 0 26px;max-width:860px;padding:10px 14px;background:#fff;border:1px solid #E0E0E0;border-radius:8px}
+  .grid{display:flex;flex-wrap:wrap;gap:26px}
+  .col{flex:0 0 auto;width:360px}
+  .label{font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#9E9E9E;margin:0 0 8px;min-height:32px}
+  .label b{color:#333;font-weight:500;text-transform:none;letter-spacing:0;font-size:13px;display:block;margin-top:2px}
+  .screen{width:360px;background:var(--screen);border-radius:12px;padding:8px;display:flex;flex-direction:column}
+  .guest{font-size:12px;line-height:16px;color:var(--txt2)}
+  .ico{width:16px;height:16px;flex:0 0 16px;color:var(--muted)}
+  .name{font-size:22px;line-height:28px;font-weight:500;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+  .cap{font-size:14px;line-height:16px;font-weight:500;color:var(--seen);white-space:nowrap;flex:0 0 auto;margin-left:auto}
+  .head{padding:4px 8px;margin-bottom:6px}
+  .head .meta{display:flex}
+  .head .title{display:flex;align-items:baseline;gap:8px;min-width:0}
+  .row{height:52px;background:var(--row);border-radius:8px;display:flex;align-items:center;justify-content:space-between;padding-left:8px}
+  .btn{width:52px;height:52px;background:var(--btn);border-radius:8px;display:flex;align-items:center;justify-content:center;flex:0 0 52px}
+  .btn svg{width:28px;height:28px}
+  .btn--cook svg{fill:var(--cook)} .btn--ready svg{fill:var(--ready)}
+
+  /* A — как сейчас: отступ 16, зазор 4 и внутри, и между блоками */
+  .a .row.g{margin-left:16px;margin-top:4px}
+  .a .row.own{margin-top:4px}
+
+  /* B — проксимити: внутри 2, между блоками 16 */
+  .b .row.g{margin-left:16px;margin-top:2px}
+  .b .row.g:first-of-type{margin-top:6px}
+  .b .row.own{margin-top:16px}
+
+  /* C — сливка: один контейнер, строки без своих радиусов */
+  .c .box{background:var(--row);border-radius:8px;margin-top:6px;overflow:hidden}
+  .c .box .row{background:transparent;border-radius:0;height:52px;padding-left:8px}
+  .c .box .row + .row{border-top:1px solid var(--sep)}
+  .c .row.own{margin-top:16px}
+
+  /* D — рейл: вертикальная линия слева на высоту группы */
+  .d .stack{position:relative;margin-left:16px;margin-top:6px}
+  .d .stack::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--rail);border-radius:2px}
+  .d .stack .row{margin-left:10px;margin-top:2px}
+  .d .stack .row:first-child{margin-top:0}
+  .d .row.own{margin-top:16px}
+
+  .notes{font-size:12.5px;line-height:1.55;color:#616161;margin:12px 0 0}
+  .notes b{color:#333;font-weight:500}
+  .bad{color:#C62828} .good{color:#2E7D32}
+  h2{font-size:18px;font-weight:500;margin:44px 0 12px}
+  table{border-collapse:collapse;width:100%;font-size:13px;background:#fff;border:1px solid #E0E0E0;border-radius:10px;overflow:hidden}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid #EEE;vertical-align:top}
+  th{font-weight:500;color:#616161;background:#FAFAFA;font-size:12px;text-transform:uppercase;letter-spacing:.03em}
+  tr:last-child td{border-bottom:none}
+  td.num{white-space:nowrap;font-variant-numeric:tabular-nums}
+  .pick{background:#F1F8E9}
+  ul{margin:8px 0 0;padding-left:20px}
+  li{margin:0 0 6px;font-size:13.5px;line-height:1.55;color:#444}
+  .final{margin-top:26px;background:#fff;border:1px solid #E0E0E0;border-radius:12px;padding:20px 22px}
+  .final h3{margin:0 0 10px;font-size:16px;font-weight:500}
+  .final p{margin:0 0 10px;font-size:14px;line-height:1.6}
+  footer{margin-top:30px;font-size:12px;color:#9E9E9E;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Как показать набор одним блоком: четыре варианта</h1>
+  <p class="lead">Один и тот же заказ №214, горячий цех. Заголовок везде одинаковый (компоновка C: гость, значок, название, «2 из 3 блюд»). Отличается только то, как строки набора связаны между собой и как блок отделён от следующего блюда.</p>
+  <p class="rule">Ограничение от дизайнера: новых подложек и фонов у блюд не добавляем. Вариант C — единственный, который это правило меняет, и он показан именно поэтому: это единственный способ буквально сделать «один блок».</p>
+
+  <div class="grid">
+
+    <!-- A -->
+    <div class="col a">
+      <p class="label">A<span><b>Как сейчас: без разницы</b></span></p>
+      <div class="screen">
+        <div class="head"><div class="meta"><span class="guest">Гость 1</span></div>
+          <div class="title"><svg class="ico" viewBox="0 0 24 24"><path fill="currentColor" d="M13.325 13C12.792 12.25 12.088 11.729 11.213 11.438C10.338 11.146 9.433 11 8.5 11C7.567 11 6.663 11.146 5.788 11.438C4.913 11.729 4.208 12.25 3.675 13H13.325ZM1 15C1 13.183 1.758 11.729 3.275 10.638C4.792 9.546 6.533 9 8.5 9C10.467 9 12.208 9.546 13.725 10.638C15.242 11.729 16 13.183 16 15H1ZM1 19V17H16V19H1ZM18 23V21H19.4L20.8 7H11.25L11 5H16V1H18V5H23L21.35 21.55C21.3 21.967 21.117 22.313 20.8 22.588C20.483 22.863 20.117 23 19.7 23H18ZM2 23C1.717 23 1.479 22.904 1.288 22.713C1.096 22.521 1 22.283 1 22V21H16V22C16 22.283 15.904 22.521 15.713 22.713C15.521 22.904 15.283 23 15 23H2Z"/></svg><span class="name">Ланч</span><span class="cap">2 из 3 блюд</span></div>
+        </div>
+        <div class="row g"><span class="name">Бургер</span><span class="btn btn--cook"><svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg></span></div>
+        <div class="row g"><span class="name">Картофель</span><span class="btn btn--ready"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span></div>
+        <div class="row own"><span class="name">Бургер</span><span class="btn btn--ready"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span></div>
+      </div>
+      <p class="notes"><b>Зазор 4 px везде.</b> Внутри набора и до соседнего блюда — одинаково, поэтому граница группы держится только на отступе 16 px. При пяти-шести строках признак слабеет.<br><span class="bad">Группа не читается как объект.</span></p>
+    </div>
+
+    <!-- B -->
+    <div class="col b">
+      <p class="label">B · рекомендую<span><b>Проксимити: внутри 2, между 16</b></span></p>
+      <div class="screen">
+        <div class="head"><div class="meta"><span class="guest">Гость 1</span></div>
+          <div class="title"><svg class="ico" viewBox="0 0 24 24"><path fill="currentColor" d="M13.325 13C12.792 12.25 12.088 11.729 11.213 11.438C10.338 11.146 9.433 11 8.5 11C7.567 11 6.663 11.146 5.788 11.438C4.913 11.729 4.208 12.25 3.675 13H13.325ZM1 15C1 13.183 1.758 11.729 3.275 10.638C4.792 9.546 6.533 9 8.5 9C10.467 9 12.208 9.546 13.725 10.638C15.242 11.729 16 13.183 16 15H1ZM1 19V17H16V19H1ZM18 23V21H19.4L20.8 7H11.25L11 5H16V1H18V5H23L21.35 21.55C21.3 21.967 21.117 22.313 20.8 22.588C20.483 22.863 20.117 23 19.7 23H18ZM2 23C1.717 23 1.479 22.904 1.288 22.713C1.096 22.521 1 22.283 1 22V21H16V22C16 22.283 15.904 22.521 15.713 22.713C15.521 22.904 15.283 23 15 23H2Z"/></svg><span class="name">Ланч</span><span class="cap">2 из 3 блюд</span></div>
+        </div>
+        <div class="row g"><span class="name">Бургер</span><span class="btn btn--cook"><svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg></span></div>
+        <div class="row g"><span class="name">Картофель</span><span class="btn btn--ready"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span></div>
+        <div class="row own"><span class="name">Бургер</span><span class="btn btn--ready"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span></div>
+      </div>
+      <p class="notes"><b>Внутри 2 px, до соседа 16 px.</b> Восемь раз разница в близости — самый сильный признак группы, который не требует ни линий, ни фонов. Плюс сохраняется отступ 16.<br><span class="good">Стоимость нулевая, правило не нарушено.</span></p>
+    </div>
+
+    <!-- C -->
+    <div class="col c">
+      <p class="label">C<span><b>Сливка: один контейнер</b></span></p>
+      <div class="screen">
+        <div class="head"><div class="meta"><span class="guest">Гость 1</span></div>
+          <div class="title"><svg class="ico" viewBox="0 0 24 24"><path fill="currentColor" d="M13.325 13C12.792 12.25 12.088 11.729 11.213 11.438C10.338 11.146 9.433 11 8.5 11C7.567 11 6.663 11.146 5.788 11.438C4.913 11.729 4.208 12.25 3.675 13H13.325ZM1 15C1 13.183 1.758 11.729 3.275 10.638C4.792 9.546 6.533 9 8.5 9C10.467 9 12.208 9.546 13.725 10.638C15.242 11.729 16 13.183 16 15H1ZM1 19V17H16V19H1ZM18 23V21H19.4L20.8 7H11.25L11 5H16V1H18V5H23L21.35 21.55C21.3 21.967 21.117 22.313 20.8 22.588C20.483 22.863 20.117 23 19.7 23H18ZM2 23C1.717 23 1.479 22.904 1.288 22.713C1.096 22.521 1 22.283 1 22V21H16V22C16 22.283 15.904 22.521 15.713 22.713C15.521 22.904 15.283 23 15 23H2Z"/></svg><span class="name">Ланч</span><span class="cap">2 из 3 блюд</span></div>
+        </div>
+        <div class="box">
+          <div class="row"><span class="name">Бургер</span><span class="btn btn--cook"><svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg></span></div>
+          <div class="row"><span class="name">Картофель</span><span class="btn btn--ready"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span></div>
+        </div>
+        <div class="row own"><span class="name">Бургер</span><span class="btn btn--ready"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span></div>
+      </div>
+      <p class="notes"><b>Один контейнер, строки без своих радиусов.</b> Единственный вариант, который буквально «один блок». Но это подложка — то самое, что ты запретил, и она ломает язык карточки, где каждая позиция — отдельная коробка.<br><span class="bad">Нарушает правило, но даёт максимальную связность.</span></p>
+    </div>
+
+    <!-- D -->
+    <div class="col d">
+      <p class="label">D<span><b>Рейл: линия слева</b></span></p>
+      <div class="screen">
+        <div class="head"><div class="meta"><span class="guest">Гость 1</span></div>
+          <div class="title"><svg class="ico" viewBox="0 0 24 24"><path fill="currentColor" d="M13.325 13C12.792 12.25 12.088 11.729 11.213 11.438C10.338 11.146 9.433 11 8.5 11C7.567 11 6.663 11.146 5.788 11.438C4.913 11.729 4.208 12.25 3.675 13H13.325ZM1 15C1 13.183 1.758 11.729 3.275 10.638C4.792 9.546 6.533 9 8.5 9C10.467 9 12.208 9.546 13.725 10.638C15.242 11.729 16 13.183 16 15H1ZM1 19V17H16V19H1ZM18 23V21H19.4L20.8 7H11.25L11 5H16V1H18V5H23L21.35 21.55C21.3 21.967 21.117 22.313 20.8 22.588C20.483 22.863 20.117 23 19.7 23H18ZM2 23C1.717 23 1.479 22.904 1.288 22.713C1.096 22.521 1 22.283 1 22V21H16V22C16 22.283 15.904 22.521 15.713 22.713C15.521 22.904 15.283 23 15 23H2Z"/></svg><span class="name">Ланч</span><span class="cap">2 из 3 блюд</span></div>
+        </div>
+        <div class="stack">
+          <div class="row"><span class="name">Бургер</span><span class="btn btn--cook"><svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg></span></div>
+          <div class="row"><span class="name">Картофель</span><span class="btn btn--ready"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span></div>
+        </div>
+        <div class="row own"><span class="name">Бургер</span><span class="btn btn--ready"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span></div>
+      </div>
+      <p class="notes"><b>Линия 2 px на высоту группы.</b> Группа видна как объект, подложки нет. Но линия — новая графика в карточке, где её никогда не было, и она конкурирует с полосой статуса 8 px у карточки.<br><span class="bad">Новый визуальный элемент.</span></p>
+    </div>
+
+  </div>
+
+  <h2>Сравнение</h2>
+  <table>
+    <thead><tr><th>Вариант</th><th>Внутри группы</th><th>До соседнего блюда</th><th>Новая графика</th><th>Подложка</th><th>Связность</th></tr></thead>
+    <tbody>
+      <tr><td>A · как сейчас</td><td class="num">4 px</td><td class="num">4 px</td><td>нет</td><td>нет</td><td class="bad">слабая</td></tr>
+      <tr class="pick"><td><b>B · проксимити</b></td><td class="num"><b>2 px</b></td><td class="num"><b>16 px</b></td><td>нет</td><td>нет</td><td class="good">сильная</td></tr>
+      <tr><td>C · сливка</td><td class="num">разделитель 1 px</td><td class="num">16 px</td><td>разделители</td><td class="bad">да</td><td class="good">максимальная</td></tr>
+      <tr><td>D · рейл</td><td class="num">2 px</td><td class="num">16 px</td><td class="bad">линия 2 px</td><td>нет</td><td class="good">сильная</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Что меняется по смыслу</h2>
+  <ul>
+    <li><b>Проксимити (B)</b> работает на уровне восприятия: близкие объекты читаются как одно целое без каких-либо линий. Внутри 2 px против 16 снаружи — разница в восемь раз, её видно боковым зрением.</li>
+    <li><b>Один блок (C)</b> — это смена языка карточки: сейчас каждая позиция отдельная коробка, а тут набор становится коробкой, внутри которой позиции. Повар видит один объект, но и «блюдо с модификаторами» из макета выглядит ровно так же — появляется риск спутать набор с блюдом.</li>
+    <li><b>Рейл (D)</b> добавляет графику, которой в карточке нет. На тёмном фоне линия видна только при #4D4D4D — а на такой яркости она начинает спорить с полосой статуса карточки (8 px сверху).</li>
+    <li><b>A</b> оставляет как есть: группа держится на отступе 16 и заголовке. При двух строках этого достаточно, при пяти — уже нет.</li>
+  </ul>
+
+  <div class="final">
+    <h3>Вывод: B, C оставить как запасной</h3>
+    <p>B решает задачу без единого нового пикселя графики: меняются два отступа, и набор читается как объект. Правило «никаких подложек» не нарушено.</p>
+    <p>C даёт более сильную связку, но ценой подложки и путаницы с блюдом с модификаторами — а это ровно та путаница, из-за которой звезда и оказалась не на своём месте. Держим как запасной вариант на случай, если B на живом экране не хватит.</p>
+  </div>
+
+  <footer>Значения из живого прототипа kds-combo.html (кадр 360): экран #121212, строки #212121 R8 52 px, кнопка 52×52 #3B3B43, название 22/28 Medium, гость 12/16, отступ вложенных 16 px.</footer>
+</div>
+</body>
+</html>
