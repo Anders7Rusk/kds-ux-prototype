@@ -24,7 +24,7 @@
   .ico{width:16px;height:16px;flex:0 0 16px;color:var(--muted)}
   .name{font-size:22px;line-height:28px;font-weight:500;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
   .cap{font-size:14px;line-height:16px;font-weight:500;color:var(--seen);white-space:nowrap;flex:0 0 auto;margin-left:auto}
-  .head{padding:4px 8px;margin-bottom:6px;background:var(--row);border-radius:8px}
+  .head{padding:4px 8px;margin-bottom:0;background:var(--row);border-radius:8px}
   .head .meta{display:flex}
   .head .title{display:flex;align-items:baseline;gap:8px;min-width:0}
   .row{height:52px;background:var(--row);border-radius:8px;display:flex;align-items:center;justify-content:space-between;padding-left:8px}
@@ -38,17 +38,17 @@
 
   /* B — проксимити: внутри 2, между блоками 16 */
   .b .row.g{margin-left:16px;margin-top:2px}
-  .b .row.g:first-of-type{margin-top:6px}
+  .b .row.g:first-of-type{margin-top:4px}
   .b .row.own{margin-top:16px}
 
   /* C — сливка: один контейнер, строки без своих радиусов */
-  .c .box{background:var(--row);border-radius:8px;margin-top:6px;overflow:hidden}
+  .c .box{background:var(--row);border-radius:8px;margin-top:4px;overflow:hidden}
   .c .box .row{background:transparent;border-radius:0;height:52px;padding-left:8px}
   .c .box .row + .row{border-top:1px solid var(--sep)}
   .c .row.own{margin-top:16px}
 
   /* D — рейл: вертикальная линия слева на высоту группы */
-  .d .stack{position:relative;margin-left:16px;margin-top:6px}
+  .d .stack{position:relative;margin-left:16px;margin-top:4px}
   .d .stack::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--rail);border-radius:2px}
   .d .stack .row{margin-left:10px;margin-top:2px}
   .d .stack .row:first-child{margin-top:0}
