@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PB-8108 · Комбо-набор на кухонном экране</title>
+<style>
+:root{--accent:#448AFF;--text:#333333;--text2:#616161;--muted:#9E9E9E;--line:#E0E0E0;--bg:#F5F6F7;--card:#FFFFFF}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Roboto,-apple-system,"Segoe UI",Arial,sans-serif;font-size:15px;line-height:1.55}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px 80px}
+header.top{background:var(--card);border-bottom:1px solid var(--line);padding:28px 0 20px;margin-bottom:28px}
+header.top .wrap{padding-bottom:0}
+.crumbs{font-size:13px;color:var(--muted);margin-bottom:10px}
+.crumbs a{color:var(--text2);text-decoration:none;border-bottom:1px solid var(--line)}
+h1{font-size:28px;line-height:1.25;font-weight:500;margin:0 0 10px}
+.sub{color:var(--text2);font-size:15px;max-width:820px;margin:0}
+.meta{color:var(--muted);font-size:13px;margin-top:12px}
+nav.toc{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0 0}
+nav.toc a{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--text);text-decoration:none;font-size:13px}
+nav.toc a:hover{border-color:var(--accent);color:var(--accent)}
+nav.toc b{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:#E8F0FE;color:var(--accent);font-size:11px;font-weight:600}
+.legend{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:28px;font-size:13px;color:var(--text2);display:flex;flex-wrap:wrap;gap:6px 22px}
+.legend span{display:inline-flex;align-items:center;gap:8px}
+.chip{width:14px;height:14px;border-radius:4px;display:inline-block}
+.chip.screen{background:#E3F2FD;border:1px solid #448AFF}
+.chip.rule{background:#E8F5E9;border:1px solid #81C784}
+.chip.lack{background:#FFEBEE;border:1px solid #EF9A9A}
+.chip.open{background:#FFF8E1;border:1px solid #FFB300}
+.chip.label{background:#FAFAFA;border:1px dashed #9E9E9E}
+section.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:24px 26px 22px;margin-bottom:20px}
+section.card h2{font-size:19px;font-weight:500;margin:0 0 4px;display:flex;align-items:center;gap:10px}
+.num{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:26px;border-radius:8px;background:#E8F0FE;color:var(--accent);font-size:13px;font-weight:600}
+.question{color:var(--text2);font-size:14px;margin:0 0 18px 36px}
+.diagram{border:1px solid var(--line);border-radius:8px;background:#FCFCFD;padding:18px 12px;overflow:auto;text-align:center}
+.diagram svg{max-width:100%;height:auto}
+h3.h{font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:500;margin:20px 0 8px}
+ul{padding-left:20px;margin:0}
+li{margin:0 0 6px}
+li::marker{color:var(--muted)}
+.open{border-left:3px solid #FFB300;background:#FFFDF5;padding:10px 14px;border-radius:0 8px 8px 0;margin-top:16px;font-size:14px;color:#5D4037}
+.open b{font-weight:600}
+.next{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:22px 26px}
+.next ol{margin:0;padding-left:20px}
+footer{color:var(--muted);font-size:13px;margin-top:28px}
+footer a{color:var(--text2)}
+.err{color:#B71C1C;font-size:13px;text-align:left}
+@media(max-width:640px){h1{font-size:22px}.wrap{padding:0 14px 60px}section.card{padding:18px 16px}}
+@media print{body{background:#fff}nav.toc{display:none}section.card{break-inside:avoid;border-color:#ddd}}
+</style>
+<script src="assets/mermaid.min.js" defer></script>
+<script defer>
+mermaid.initialize({
+  startOnLoad: false,
+  theme: 'base',
+  securityLevel: 'loose',
+  fontFamily: 'Roboto, Arial, sans-serif',
+  themeVariables: {
+    fontSize: '14px',
+    primaryColor: '#FFFFFF',
+    primaryTextColor: '#333333',
+    primaryBorderColor: '#9E9E9E',
+    lineColor: '#9E9E9E',
+    secondaryColor: '#FAFAFA',
+    tertiaryColor: '#FFFFFF',
+    edgeLabelBackground: '#FFFFFF'
+  },
+  flowchart: {htmlLabels: true, curve: 'basis', nodeSpacing: 32, rankSpacing: 44, useMaxWidth: true, padding: 12}
+});
+(async () => {
+  const nodes = [...document.querySelectorAll('.mermaid')];
+  for (let i = 0; i < nodes.length; i++) {
+    try {
+      const {svg} = await mermaid.render('mmd-' + i, nodes[i].textContent.trim());
+      nodes[i].innerHTML = svg;
+    } catch (e) {
+      nodes[i].innerHTML = '<div class="err">Схема не отрисовалась: ' + (e && e.message ? e.message : e) + '</div>';
+      console.error('mermaid', i, e);
+    }
+  }
+})();
+</script>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="crumbs">iiko WebKDS · комбо-наборы · PB-8108</div>
+    <h1>PB-8108 · Комбо-набор на кухонном экране</h1>
+    <p class="sub">Блок-схемы к задаче на дизайн. Только то, что есть в задаче и сценариях; спорное помечено как решение дизайнера.</p>
+    <div class="meta">Источник: Jira PB-8108, родительская PB-8101, вложение «Пользовательские сценарии работы с комбо» (PB-7812, ред. 19.10.2026)</div>
+    <nav class="toc"><a href="#s1"><b>1</b>Карта сущностей и границ</a>
+<a href="#s2"><b>2</b>Один заказ на разных экранах</a>
+<a href="#s3"><b>3</b>Сборка режима «по заказам»</a>
+<a href="#s4"><b>4</b>Строка блюда в режиме «по блюдам»</a>
+<a href="#s5"><b>5</b>Экземпляры одного набора</a>
+<a href="#s6"><b>6</b>Модификатор, который готовится отдельно</a></nav>
+  </div>
+</header>
+<main class="wrap">
+  <div class="legend">
+    <span><i class="chip screen"></i>экран / вид</span>
+    <span><i class="chip rule"></i>есть, правило</span>
+    <span><i class="chip lack"></i>чего нет</span>
+    <span><i class="chip label"></i>связь-ярлык</span>
+    <span><i class="chip open"></i>решение дизайнера</span>
+  </div>
+  
+<section class="card" id="s1">
+  <h2><span class="num">1</span>Карта сущностей и границ</h2>
+  <p class="question">Что на экране исполняемый объект, а что только ярлык?</p>
+  <div class="diagram"><pre class="mermaid">flowchart TD
+  Z[&quot;ЗАКАЗ&quot;] --&gt; K[&quot;КУРС&quot;]
+  K --&gt; B[&quot;СТРОКА БЛЮДА&quot;]
+  B --&gt; MO[&quot;МОДИФИКАТОРЫ БЛЮДА&quot;]
+  B -. &quot;признак принадлежности (ярлык)&quot; .-&gt; N[&quot;ЭКЗЕМПЛЯР НАБОРА&lt;br/&gt;название + признак экземпляра&quot;]
+  B ==&gt; BP[&quot;есть: количество · статус · время · действия&quot;]
+  N ==&gt; NP[&quot;нет: количества · статуса · времени ·&lt;br/&gt;действий · «Завершить набор»&quot;]
+  classDef owner fill:#E8F5E9,stroke:#81C784,color:#1B5E20
+  classDef lack fill:#FFEBEE,stroke:#EF9A9A,color:#B71C1C
+  classDef label fill:#FAFAFA,stroke:#9E9E9E,stroke-dasharray:5 4,color:#616161
+  class BP owner
+  class NP lack
+  class N label</pre></div>
+  <h3 class="h">Что из этого следует</h3>
+  <ul><li>Всё исполняемое живёт у строки блюда: количество, статус, время, действия. Набор ничего из этого не отменяет и не дублирует.</li>
+<li>Экземпляр набора — атрибут блюда (название + признак экземпляра), а не отдельная строка списка.</li>
+<li>Модификатор принадлежит блюду. Поэтому компонент набора — блюдо вместе с его модификаторами.</li>
+<li>Заголовок группы набора существует только как оформление списка и не участвует в статусах.</li></ul>
+  
+</section>
+<section class="card" id="s2">
+  <h2><span class="num">2</span>Один заказ на разных экранах</h2>
+  <p class="question">Почему один и тот же заказ выглядит по-разному и это норма?</p>
+  <div class="diagram"><pre class="mermaid">flowchart LR
+  Z[&quot;Заказ №214&lt;br/&gt;Ланч: бургер, картофель, салат&lt;br/&gt;отдельно: бургер&quot;] --&gt; G[&quot;Горячий цех&lt;br/&gt;видит 2 из 3 компонентов&quot;]
+  Z --&gt; C[&quot;Холодный цех&lt;br/&gt;видит 1 из 3&quot;]
+  Z --&gt; S[&quot;Сборка&lt;br/&gt;видит 3 из 3&quot;]
+  G --&gt; G1[&quot;Ланч&lt;br/&gt;Бургер ×1&lt;br/&gt;Картофель ×1&lt;br/&gt;Бургер ×1 — вне группы&quot;]
+  C --&gt; C1[&quot;Ланч&lt;br/&gt;Салат ×1&lt;br/&gt;та же группа, тот же вид&quot;]
+  S --&gt; S1[&quot;Ланч&lt;br/&gt;Бургер ×1&lt;br/&gt;Картофель ×1&lt;br/&gt;Салат ×1&lt;br/&gt;Бургер ×1 — вне группы&quot;]
+  classDef screen fill:#E3F2FD,stroke:#448AFF,color:#0D47A1
+  class G,C,S screen</pre></div>
+  <h3 class="h">Что из этого следует</h3>
+  <ul><li>Способ обозначения группы один и тот же на всех экранах: меняется только число строк внутри.</li>
+<li>Группа с единственной видимой строкой — норма, а не особый случай: холодный цех видит салат так же, как сборка видит три компонента.</li>
+<li>Отдельно купленный бургер остаётся вне группы. Чужие позиции не подтягиваются в группу ради полноты.</li>
+<li>Экран цеха не должен давать повода думать, что показан весь состав набора или что набор готов.</li></ul>
+  <div class="open"><b>Открытое решение.</b> Как именно оформляется заголовок, чтобы он читался как группа, а не как исполняемая строка (открытый вопрос №1 задачи).</div>
+</section>
+<section class="card" id="s3">
+  <h2><span class="num">3</span>Сборка режима «по заказам»</h2>
+  <p class="question">Как из плоского списка позиций получается группа набора?</p>
+  <div class="diagram"><pre class="mermaid">flowchart TD
+  A[&quot;Позиции заказа из плагина:&lt;br/&gt;название набора + признак экземпляра&quot;] --&gt; B{&quot;признак набора есть?&quot;}
+  B -- &quot;нет&quot; --&gt; C[&quot;обычная строка блюда,&lt;br/&gt;порядок как пришёл&quot;]
+  B -- &quot;есть&quot; --&gt; D[&quot;ключ группы =&lt;br/&gt;курс + экземпляр набора&lt;br/&gt;одна строка или несколько —&lt;br/&gt;группа одна&quot;]
+  D --&gt; K{&quot;строки группы шли подряд?&quot;}
+  K -- &quot;да&quot; --&gt; L[&quot;группа на месте первой строки&quot;]
+  K -- &quot;нет&quot; --&gt; M[&quot;развилка: сдвинуть строки друг к другу&lt;br/&gt;или сохранить порядок и связать визуально&quot;]
+  L --&gt; N[&quot;курсы, порядок и приоритеты&lt;br/&gt;не меняются&quot;]
+  M --&gt; N
+  classDef open fill:#FFF8E1,stroke:#FFB300,color:#5D4037
+  class M open</pre></div>
+  <h3 class="h">Что из этого следует</h3>
+  <ul><li>Ключ группы — пара «курс + экземпляр набора». Один и тот же набор в разных курсах даёт две разные группы, и они не склеиваются через границу курса.</li>
+<li>Группировка не меняет курсы, сортировку и производственные приоритеты. Меняется только подача внутри курса.</li>
+<li>Отменённый компонент не показывается как необходимая часть комплекта.</li>
+<li>Фильтр по цеху или статусу убирает строки, но не меняет способ показа: группа остаётся группой.</li></ul>
+  <div class="open"><b>Открытое решение.</b> Если самостоятельно заказанное блюдо стоит между компонентами набора: сдвигать компоненты друг к другу (меняя порядок) или сохранять порядок и показывать принадлежность без перемещения. Задача требует «не вклиниваться» и одновременно «порядок сохраняется» — это решение дизайнера (открытый вопрос №3).</div>
+</section>
+<section class="card" id="s4">
+  <h2><span class="num">4</span>Строка блюда в режиме «по блюдам»</h2>
+  <p class="question">Что в строке и в каком порядке по важности?</p>
+  <div class="diagram"><pre class="mermaid">flowchart TD
+  R[&quot;Строка&lt;br/&gt;блюда&quot;] --&gt; P1[&quot;1. Название + количество&quot;]
+  P1 --&gt; P2[&quot;2. Модификаторы&quot;]
+  P2 --&gt; P3[&quot;3. Время, статус&quot;]
+  P3 --&gt; P4[&quot;4. Подпись набора&quot;]
+  P4 --&gt; Q{&quot;название&lt;br/&gt;помещается?&quot;}
+  Q -- &quot;да&quot; --&gt; Q1[&quot;показать&lt;br/&gt;целиком&quot;]
+  Q -- &quot;нет&quot; --&gt; Q2[&quot;сократить, полное&lt;br/&gt;оставить доступным&quot;]
+  P4 --&gt; X[&quot;состав набора&lt;br/&gt;не раскрывается&quot;]
+  classDef open fill:#FFF8E1,stroke:#FFB300,color:#5D4037
+  class Q2 open</pre></div>
+  <h3 class="h">Что из этого следует</h3>
+  <ul><li>Порядок считывания задаёт задача: сначала название и количество, статус, модификаторы и время; принадлежность к набору — дополнительный контекст.</li>
+<li>Остальные компоненты набора из строки не раскрываются: это подпись, а не раскрывающийся список.</li>
+<li>Пиктограмма набора — признак «входит в набор». Сама по себе она не различает разные экземпляры.</li>
+<li>Полное название доступно всегда, даже если в строке оно сокращено.</li></ul>
+  <div class="open"><b>Открытое решение.</b> Как дать доступ к полному названию, не перегружая строку и не раскрывая состав (открытый вопрос №6).</div>
+</section>
+<section class="card" id="s5">
+  <h2><span class="num">5</span>Экземпляры одного набора</h2>
+  <p class="question">Как не перепутать две одинаковые покупки одного комбо?</p>
+  <div class="diagram"><pre class="mermaid">flowchart TD
+  Z[&quot;Заказ №215&lt;br/&gt;два «Ланча» из одного комбо-меню&lt;br/&gt;состав выбран разный&quot;] --&gt; K1[&quot;Курс 1&quot;]
+  Z --&gt; K2[&quot;Курс 2&quot;]
+  K1 --&gt; A1[&quot;Ланч, экземпляр 1: борщ&quot;]
+  K1 --&gt; B1[&quot;Ланч, экземпляр 2: гаспачо&quot;]
+  K2 --&gt; A2[&quot;Ланч, экземпляр 1: котлета, чай&quot;]
+  K2 --&gt; B2[&quot;Ланч, экземпляр 2: рыба, компот&quot;]
+  A1 -. &quot;одна и та же покупка&quot; .-&gt; A2
+  B1 -. &quot;одна и та же покупка&quot; .-&gt; B2
+  S[&quot;Тот же случай при совпавшем составе:&lt;br/&gt;различать всё равно нужно&quot;]
+  classDef same fill:#E8F5E9,stroke:#81C784,color:#1B5E20
+  class S same</pre></div>
+  <h3 class="h">Что из этого следует</h3>
+  <ul><li>Название набора экземпляр не идентифицирует: у двух покупок оно общее. Значит, нужен дополнительный признак экземпляра.</li>
+<li>Признак должен читаться и внутри курса, и между курсами: части одного комплекта не теряют связь после разделения по курсам.</li>
+<li>Количества и статусы порций двух экземпляров не смешиваются.</li>
+<li>Совпадение выбранного состава ничего не упрощает: два одинаковых набора — всё равно два комплекта.</li></ul>
+  <div class="open"><b>Открытое решение.</b> Достаточно ли подписи с названием или нужен отдельный признак экземпляра, в том числе при совпавшем составе (открытый вопрос №4). От этого зависит вся разметка строки и заголовка.</div>
+</section>
+<section class="card" id="s6">
+  <h2><span class="num">6</span>Модификатор, который готовится отдельно</h2>
+  <p class="question">Как показать узел с двумя связями, не сделав его блюдом набора?</p>
+  <div class="diagram"><pre class="mermaid">flowchart TD
+  S[&quot;Задача «Соус к бургеру»&lt;br/&gt;отдельно готовящийся модификатор&quot;] --&gt; C1[&quot;случай 1: родительское блюдо на этом экране&quot;]
+  S --&gt; C2[&quot;случай 2: бургера на экране нет&quot;]
+  C1 --&gt; V1[&quot;видно: соус → бургер → Ланч, экземпляр 2&quot;]
+  C2 --&gt; V2[&quot;видно: соус → Ланч, экземпляр 2&lt;br/&gt;связь с блюдом читается по родителю&quot;]
+  V1 --&gt; R[&quot;соус не становится компонентом набора:&lt;br/&gt;состав набора = блюдо + его модификаторы&quot;]
+  V2 --&gt; R
+  classDef rule fill:#E8F5E9,stroke:#81C784,color:#1B5E20
+  class R rule</pre></div>
+  <h3 class="h">Что из этого следует</h3>
+  <ul><li>У отдельной задачи модификатора две связи: с родительским блюдом и с конкретным экземпляром набора этого блюда.</li>
+<li>Обе связи должны читаться и в случае, когда родительского блюда на экране нет.</li>
+<li>Состав набора от появления такой задачи не меняется: компонент набора — блюдо вместе с модификаторами.</li>
+<li>Свои статус и действия у задачи модификатора остаются по существующим правилам.</li></ul>
+  <div class="open"><b>Открытое решение.</b> Как показать обе связи компактно, особенно когда виден только модификатор (открытый вопрос №7).</div>
+</section>
+  <div class="next">
+    <h2 style="font-size:17px;font-weight:500;margin:0 0 12px">Что дальше</h2>
+    <ol><li>Закрыть девять открытых вопросов: по каждому — вариант решения и его следствие для разметки.</li>
+<li>На схемы наложить правила ДС: какие компоненты и токены отвечают за группу, заголовок, подпись и иконки.</li>
+<li>Добавить матрицу состояний (частичная готовность, отмена, длинное название, узкий экран) и превратить всё это в ТЗ для отрисовки прототипов.</li></ol>
+  </div>
+  <footer>Источники: <a href="https://jira.iiko.ru/browse/PB-8108" target="_blank" rel="noopener">PB-8108</a> · <a href="https://jira.iiko.ru/browse/PB-8101" target="_blank" rel="noopener">PB-8101</a> · <a href="https://jira.iiko.ru/browse/PB-7812" target="_blank" rel="noopener">PB-7812</a> · <a href="https://jira.iiko.ru/browse/DS-1577" target="_blank" rel="noopener">DS-1577</a><br>Собрано 22.10.2026 · схемы синхронизированы с файлом pb8108-combo-schemes.md</footer>
+</main>
+</body>
+</html>
