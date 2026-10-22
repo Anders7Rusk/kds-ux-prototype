@@ -1,158 +1,172 @@
 <!doctype html>
 <html lang="ru">
 <head>
-<!-- v3 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>PB-8108 · компоновка блока комбо</title>
+<title>PB-8108 · варианты компоновки блока комбо</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --screen:#121212; --row:#212121; --btn:#3B3B43;
-    --txt:#FFFFFF; --txt2:#D6D6D6; --muted:#9E9E9E; --seen:#BDBDBD;
-    --cook:#448AFF; --ready:#14B456;
-  }
+  :root{--screen:#121212;--row:#212121;--btn:#3B3B43;--txt:#fff;--txt2:#D6D6D6;--muted:#9E9E9E;--seen:#BDBDBD;--cook:#448AFF;--ready:#14B456}
   *{box-sizing:border-box}
   body{margin:0;background:#F5F6F7;color:#333;font-family:Roboto,-apple-system,"Segoe UI",Arial,sans-serif}
-  .wrap{max-width:900px;margin:0 auto;padding:28px 24px 60px}
+  .wrap{max-width:1240px;margin:0 auto;padding:28px 24px 70px}
   h1{font-size:24px;font-weight:500;margin:0 0 6px}
-  .lead{color:#616161;font-size:14px;margin:0 0 24px;max-width:720px}
-  .cols{display:flex;gap:28px;flex-wrap:wrap}
-  .col{flex:0 0 auto}
-  .label{font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#9E9E9E;margin:0 0 10px}
-  .label b{color:#333;font-weight:500}
-  /* ——— экран ——— */
+  .lead{color:#616161;font-size:14px;margin:0 0 26px;max-width:820px}
+  .grid{display:flex;flex-wrap:wrap;gap:26px}
+  .col{flex:0 0 auto;width:360px}
+  .label{font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#9E9E9E;margin:0 0 8px;min-height:32px}
+  .label b{color:#333;font-weight:500;text-transform:none;letter-spacing:0;font-size:13px;display:block;margin-top:2px}
+  .label .tag{display:inline-block;font-size:11px;letter-spacing:0;text-transform:none;color:#0D47A1;background:#E3F2FD;border-radius:4px;padding:1px 6px;margin-left:6px}
   .screen{width:360px;background:var(--screen);border-radius:12px;padding:8px;display:flex;flex-direction:column}
-  /* заголовок: сейчас */
-  .head-box{background:var(--row);border-radius:8px;padding:4px 8px;margin-bottom:0;position:relative}
+  .head-box{background:var(--row);border-radius:8px;padding:4px 8px}
+  .head-box--one{padding:12px 8px}
   .guest{font-size:12px;line-height:16px;color:var(--txt2)}
-  .h2line{display:flex;align-items:center;gap:6px;margin-top:2px}
+  .guest--inline{color:var(--muted);margin-right:2px}
+  .h2line{display:flex;align-items:center;gap:8px}
   .ico{width:16px;height:16px;flex:0 0 16px;color:var(--muted)}
-  .name{font-size:22px;line-height:28px;font-weight:500;color:var(--txt)}
+  .name{font-size:22px;line-height:28px;font-weight:500;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
   .seen{font-size:12px;line-height:16px;color:var(--seen);margin-top:2px}
-  .head-box .h2line{margin-top:0}
-  /* строка */
   .row{height:52px;background:var(--row);border-radius:8px;display:flex;align-items:center;justify-content:space-between;padding-left:8px;margin-top:4px}
-  .row .name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .btn{width:52px;height:52px;background:var(--btn);border-radius:8px;display:flex;align-items:center;justify-content:center;flex:0 0 52px}
   .btn svg{width:28px;height:28px}
-  .btn--cook svg{fill:var(--cook)}
-  .btn--ready svg{fill:var(--ready)}
+  .btn--cook svg{fill:var(--cook)} .btn--ready svg{fill:var(--ready)}
   .nest{margin-left:16px}
-  .own{margin-left:0}
-  /* заголовок: предлагаю */
-  .head-line{padding:4px 0 4px 8px;margin-bottom:2px;display:flex;flex-direction:column;justify-content:center;height:52px}
-  .head-line .meta{display:flex;align-items:baseline;gap:8px}
-  .head-line .title .cap{margin-left:auto}
-  .head-line .title{display:flex;align-items:baseline;gap:8px;min-width:0;margin-top:0}
-  .head-line .title .name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
-  .cap{font-size:14px;line-height:16px;color:var(--seen);white-space:nowrap;flex:0 0 auto;font-weight:500}
-  /* метки */
-  .anno{border:1px dashed rgba(255,82,82,.65);border-radius:6px;position:absolute;top:8px;bottom:8px;right:8px;left:150px;pointer-events:none}
-  .anno span{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:11px;color:#FF8A80;background:rgba(18,18,18,.85);padding:1px 6px;border-radius:4px}
-  .h-measure{font-size:12px;color:#616161;margin-top:12px;line-height:1.5}
-  .h-measure b{color:#333;font-weight:500}
-  footer{margin-top:34px;font-size:13px;color:#9E9E9E;line-height:1.6}
-  .tokens{font-size:12px;color:#9E9E9E;margin-top:8px}
+  .head-line{padding:4px 8px;margin-bottom:2px}
+  .head-line--one{padding:2px 8px;margin-bottom:2px}
+  .head-line .meta{display:flex;align-items:baseline}
+  .head-line .title{display:flex;align-items:baseline;gap:8px;min-width:0}
+  .head-line .sub{margin-top:2px}
+  .cap{font-size:14px;line-height:16px;font-weight:500;color:var(--seen);white-space:nowrap;flex:0 0 auto;margin-left:auto}
+  .head-line--one .cap{margin-left:auto}
+  .notes{font-size:12.5px;line-height:1.55;color:#616161;margin:12px 0 0}
+  .notes b{color:#333;font-weight:500}
+  .bad{color:#C62828}
+  .good{color:#2E7D32}
+  h2{font-size:18px;font-weight:500;margin:44px 0 12px}
+  table{border-collapse:collapse;width:100%;font-size:13px;background:#fff;border:1px solid #E0E0E0;border-radius:10px;overflow:hidden}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid #EEE;vertical-align:top}
+  th{font-weight:500;color:#616161;background:#FAFAFA;font-size:12px;text-transform:uppercase;letter-spacing:.03em}
+  tr:last-child td{border-bottom:none}
+  td.num{white-space:nowrap;font-variant-numeric:tabular-nums}
+  .pick{background:#F1F8E9}
+  ul{margin:8px 0 0;padding-left:20px}
+  li{margin:0 0 6px;font-size:13.5px;line-height:1.55;color:#444}
+  .final{margin-top:26px;background:#fff;border:1px solid #E0E0E0;border-radius:12px;padding:20px 22px}
+  .final h3{margin:0 0 10px;font-size:16px;font-weight:500}
+  footer{margin-top:30px;font-size:12px;color:#9E9E9E;line-height:1.6}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>Блок комбо-набора: компоновка</h1>
-  <p class="lead">Один и тот же заказ №214, горячий цех: группа «Ланч» (видны бургер и картофель из трёх) и отдельно купленный бургер. Слева — как в прототипе сейчас, справа — предлагаемая компоновка. Масштаб 1:1, карточка 360.</p>
+  <h1>Блок комбо-набора: пять вариантов компоновки</h1>
+  <p class="lead">Все варианты — один и тот же заказ №214, горячий цех: группа «Ланч» (2 из 3 блюд на экране) и отдельно купленный бургер. Масштаб 1:1, карточка 360, значения взяты из прототипа. Варианты различаются только заголовком группы — строки блюд везде одинаковые.</p>
 
-  <div class="cols">
-    <!-- СЕЙЧАС -->
+  <div class="grid">
+
     <div class="col">
-      <p class="label">Сейчас · <b>высоко и пусто справа</b></p>
+      <p class="label">A · было<span><b>Коробка, четыре строки</b></span></p>
       <div class="screen">
         <div class="head-box">
           <div class="guest">Гость 1</div>
-          <div class="h2line">
-            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M13.325 13C12.792 12.25 12.088 11.729 11.213 11.438C10.338 11.146 9.433 11 8.5 11C7.567 11 6.663 11.146 5.788 11.438C4.913 11.729 4.208 12.25 3.675 13H13.325ZM1 15C1 13.183 1.758 11.729 3.275 10.638C4.792 9.546 6.533 9 8.5 9C10.467 9 12.208 9.546 13.725 10.638C15.242 11.729 16 13.183 16 15H1ZM1 19V17H16V19H1ZM18 23V21H19.4L20.8 7H11.25L11 5H16V1H18V5H23L21.35 21.55C21.3 21.967 21.117 22.313 20.8 22.588C20.483 22.863 20.117 23 19.7 23H18ZM2 23C1.717 23 1.479 22.904 1.288 22.713C1.096 22.521 1 22.283 1 22V21H16V22C16 22.283 15.904 22.521 15.713 22.713C15.521 22.904 15.283 23 15 23H2Z"/></svg>
-            <span class="name">Ланч</span>
-          </div>
+          <div class="h2line"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M13.325 13C12.792 12.25 12.088 11.729 11.213 11.438C10.338 11.146 9.433 11 8.5 11C7.567 11 6.663 11.146 5.788 11.438C4.913 11.729 4.208 12.25 3.675 13H13.325ZM1 15C1 13.183 1.758 11.729 3.275 10.638C4.792 9.546 6.533 9 8.5 9C10.467 9 12.208 9.546 13.725 10.638C15.242 11.729 16 13.183 16 15H1ZM1 19V17H16V19H1ZM18 23V21H19.4L20.8 7H11.25L11 5H16V1H18V5H23L21.35 21.55C21.3 21.967 21.117 22.313 20.8 22.588C20.483 22.863 20.117 23 19.7 23H18ZM2 23C1.717 23 1.479 22.904 1.288 22.713C1.096 22.521 1 22.283 1 22V21H16V22C16 22.283 15.904 22.521 15.713 22.713C15.521 22.904 15.283 23 15 23H2Z"/></svg><span class="name">Ланч</span></div>
           <div class="seen">на экране 2 из 3 блюд набора<br>остальные — в других цехах</div>
         </div>
-        <div class="row nest">
-          <span class="name">Бургер</span>
-          <span class="btn btn--cook"><svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg></span>
-        </div>
-        <div class="row nest">
-          <span class="name">Картофель</span>
-          <span class="btn btn--ready"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span>
-        </div>
-        <div class="row own">
-          <span class="name">Бургер</span>
-          <span class="btn btn--ready"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span>
-        </div>
+        <div class="row nest"><span class="name">Бургер</span><span class="btn btn--cook"><svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg></span></div>
+        <div class="row nest"><span class="name">Картофель</span><span class="btn btn--ready"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span></div>
+        <div class="row"><span class="name">Бургер</span><span class="btn btn--ready"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span></div>
       </div>
-      <p class="h-measure">заголовок <b>86 px</b> · блок <b>198 px</b></p>
+      <p class="notes"><b>86 px.</b> Четыре текстовые строки, справа пусто. Коробка во всю ширину без содержимого справа читается как строка блюда, у которой пропала кнопка. <span class="bad">Не годится.</span></p>
     </div>
 
-    <!-- ПРЕДЛАГАЮ -->
     <div class="col">
-      <p class="label">Предлагаю · <b>52 px, подпись справа</b></p>
+      <p class="label">B<span><b>Коробка в одну строку</b></span></p>
       <div class="screen">
-        <div class="head-line">
-          <div class="meta">
-            <span class="guest">Гость 1</span>
-          </div>
-          <div class="title">
-            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M13.325 13C12.792 12.25 12.088 11.729 11.213 11.438C10.338 11.146 9.433 11 8.5 11C7.567 11 6.663 11.146 5.788 11.438C4.913 11.729 4.208 12.25 3.675 13H13.325ZM1 15C1 13.183 1.758 11.729 3.275 10.638C4.792 9.546 6.533 9 8.5 9C10.467 9 12.208 9.546 13.725 10.638C15.242 11.729 16 13.183 16 15H1ZM1 19V17H16V19H1ZM18 23V21H19.4L20.8 7H11.25L11 5H16V1H18V5H23L21.35 21.55C21.3 21.967 21.117 22.313 20.8 22.588C20.483 22.863 20.117 23 19.7 23H18ZM2 23C1.717 23 1.479 22.904 1.288 22.713C1.096 22.521 1 22.283 1 22V21H16V22C16 22.283 15.904 22.521 15.713 22.713C15.521 22.904 15.283 23 15 23H2Z"/></svg>
-            <span class="name">Ланч</span>
-            <span class="cap">2 из 3</span>
-          </div>
+        <div class="head-box head-box--one">
+          <div class="h2line"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M13.325 13C12.792 12.25 12.088 11.729 11.213 11.438C10.338 11.146 9.433 11 8.5 11C7.567 11 6.663 11.146 5.788 11.438C4.913 11.729 4.208 12.25 3.675 13H13.325ZM1 15C1 13.183 1.758 11.729 3.275 10.638C4.792 9.546 6.533 9 8.5 9C10.467 9 12.208 9.546 13.725 10.638C15.242 11.729 16 13.183 16 15H1ZM1 19V17H16V19H1ZM18 23V21H19.4L20.8 7H11.25L11 5H16V1H18V5H23L21.35 21.55C21.3 21.967 21.117 22.313 20.8 22.588C20.483 22.863 20.117 23 19.7 23H18ZM2 23C1.717 23 1.479 22.904 1.288 22.713C1.096 22.521 1 22.283 1 22V21H16V22C16 22.283 15.904 22.521 15.713 22.713C15.521 22.904 15.283 23 15 23H2Z"/></svg><span class="name">Ланч</span><span class="cap">2 из 3</span></div>
         </div>
-        <div class="row nest">
-          <span class="name">Бургер</span>
-          <span class="btn btn--cook"><svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg></span>
-        </div>
-        <div class="row nest">
-          <span class="name">Картофель</span>
-          <span class="btn btn--ready"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span>
-        </div>
-        <div class="row own">
-          <span class="name">Бургер</span>
-          <span class="btn btn--ready"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span>
-        </div>
+        <div class="row nest"><span class="name">Бургер</span><span class="btn btn--cook"><svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg></span></div>
+        <div class="row nest"><span class="name">Картофель</span><span class="btn btn--ready"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span></div>
+        <div class="row"><span class="name">Бургер</span><span class="btn btn--ready"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span></div>
       </div>
-      <p class="h-measure">заголовок <b>52 px</b> · блок <b>166 px</b></p>
+      <p class="notes"><b>52 px.</b> Компактно, цифры рядом с названием. Но остаётся подложка и та же форма, что у строки блюда, — заголовок по-прежнему претендует на роль позиции. Гость потерян.<br><span class="bad">Хуже A по смыслу, лучше по высоте.</span></p>
     </div>
 
-    <!-- ПРОВЕРКА ДЛИННЫМ НАЗВАНИЕМ -->
     <div class="col">
-      <p class="label">Проверка · <b>длинное название</b></p>
+      <p class="label">C · рекомендую<span><b>Подпись: гость / название + цифры</b></span></p>
       <div class="screen">
         <div class="head-line">
-          <div class="meta">
-            <span class="guest">Гость 1</span>
-          </div>
-          <div class="title">
-            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M13.325 13C12.792 12.25 12.088 11.729 11.213 11.438C10.338 11.146 9.433 11 8.5 11C7.567 11 6.663 11.146 5.788 11.438C4.913 11.729 4.208 12.25 3.675 13H13.325ZM1 15C1 13.183 1.758 11.729 3.275 10.638C4.792 9.546 6.533 9 8.5 9C10.467 9 12.208 9.546 13.725 10.638C15.242 11.729 16 13.183 16 15H1ZM1 19V17H16V19H1ZM18 23V21H19.4L20.8 7H11.25L11 5H16V1H18V5H23L21.35 21.55C21.3 21.967 21.117 22.313 20.8 22.588C20.483 22.863 20.117 23 19.7 23H18ZM2 23C1.717 23 1.479 22.904 1.288 22.713C1.096 22.521 1 22.283 1 22V21H16V22C16 22.283 15.904 22.521 15.713 22.713C15.521 22.904 15.283 23 15 23H2Z"/></svg>
-            <span class="name" title="Ланч выходного дня с напитком и десертом на выбор">Ланч выходного дня с напитком и десертом на выбор</span>
-            <span class="cap">2 из 3</span>
-          </div>
+          <div class="meta"><span class="guest">Гость 1</span></div>
+          <div class="title"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M13.325 13C12.792 12.25 12.088 11.729 11.213 11.438C10.338 11.146 9.433 11 8.5 11C7.567 11 6.663 11.146 5.788 11.438C4.913 11.729 4.208 12.25 3.675 13H13.325ZM1 15C1 13.183 1.758 11.729 3.275 10.638C4.792 9.546 6.533 9 8.5 9C10.467 9 12.208 9.546 13.725 10.638C15.242 11.729 16 13.183 16 15H1ZM1 19V17H16V19H1ZM18 23V21H19.4L20.8 7H11.25L11 5H16V1H18V5H23L21.35 21.55C21.3 21.967 21.117 22.313 20.8 22.588C20.483 22.863 20.117 23 19.7 23H18ZM2 23C1.717 23 1.479 22.904 1.288 22.713C1.096 22.521 1 22.283 1 22V21H16V22C16 22.283 15.904 22.521 15.713 22.713C15.521 22.904 15.283 23 15 23H2Z"/></svg><span class="name">Ланч</span><span class="cap">2 из 3</span></div>
         </div>
-        <div class="row nest">
-          <span class="name">Бургер</span>
-          <span class="btn btn--cook"><svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg></span>
-        </div>
-        <div class="row nest">
-          <span class="name">Картофель</span>
-          <span class="btn btn--ready"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span>
-        </div>
+        <div class="row nest"><span class="name">Бургер</span><span class="btn btn--cook"><svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg></span></div>
+        <div class="row nest"><span class="name">Картофель</span><span class="btn btn--ready"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span></div>
+        <div class="row"><span class="name">Бургер</span><span class="btn btn--ready"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span></div>
       </div>
-      <p class="h-measure">название <b>548 px</b> · в строке <b>328 px</b><br>обрезается многоточием, полное — по тапу</p>
+      <p class="notes"><b>52 px.</b> Заголовок — текст, без подложки: он не притворяется позицией. Гость на своей строке, цифры на строке названия — видно, к чему относятся. Название получает 283 px из 328.<br><span class="good">Баланс высоты и ясности.</span></p>
     </div>
+
+    <div class="col">
+      <p class="label">D<span><b>Подпись: гость / название / цифры</b></span></p>
+      <div class="screen">
+        <div class="head-line">
+          <div class="meta"><span class="guest">Гость 1</span></div>
+          <div class="title"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M13.325 13C12.792 12.25 12.088 11.729 11.213 11.438C10.338 11.146 9.433 11 8.5 11C7.567 11 6.663 11.146 5.788 11.438C4.913 11.729 4.208 12.25 3.675 13H13.325ZM1 15C1 13.183 1.758 11.729 3.275 10.638C4.792 9.546 6.533 9 8.5 9C10.467 9 12.208 9.546 13.725 10.638C15.242 11.729 16 13.183 16 15H1ZM1 19V17H16V19H1ZM18 23V21H19.4L20.8 7H11.25L11 5H16V1H18V5H23L21.35 21.55C21.3 21.967 21.117 22.313 20.8 22.588C20.483 22.863 20.117 23 19.7 23H18ZM2 23C1.717 23 1.479 22.904 1.288 22.713C1.096 22.521 1 22.283 1 22V21H16V22C16 22.283 15.904 22.521 15.713 22.713C15.521 22.904 15.283 23 15 23H2Z"/></svg><span class="name">Ланч</span></div>
+          <div class="sub"><span class="cap" style="margin-left:0">2 из 3</span></div>
+        </div>
+        <div class="row nest"><span class="name">Бургер</span><span class="btn btn--cook"><svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg></span></div>
+        <div class="row nest"><span class="name">Картофель</span><span class="btn btn--ready"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span></div>
+        <div class="row"><span class="name">Бургер</span><span class="btn btn--ready"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span></div>
+      </div>
+      <p class="notes"><b>73 px.</b> Самая однозначная атрибуция: цифры отдельной строкой под названием. Но заголовок выше на 21 px, а при длинном названии подпись уходит вниз далеко от цифр.<br><span class="bad">Дорого по высоте.</span></p>
+    </div>
+
+    <div class="col">
+      <p class="label">E<span><b>Одна строка: гость · название · цифры</b></span></p>
+      <div class="screen">
+        <div class="head-line head-line--one">
+          <div class="title"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M13.325 13C12.792 12.25 12.088 11.729 11.213 11.438C10.338 11.146 9.433 11 8.5 11C7.567 11 6.663 11.146 5.788 11.438C4.913 11.729 4.208 12.25 3.675 13H13.325ZM1 15C1 13.183 1.758 11.729 3.275 10.638C4.792 9.546 6.533 9 8.5 9C10.467 9 12.208 9.546 13.725 10.638C15.242 11.729 16 13.183 16 15H1ZM1 19V17H16V19H1ZM18 23V21H19.4L20.8 7H11.25L11 5H16V1H18V5H23L21.35 21.55C21.3 21.967 21.117 22.313 20.8 22.588C20.483 22.863 20.117 23 19.7 23H18ZM2 23C1.717 23 1.479 22.904 1.288 22.713C1.096 22.521 1 22.283 1 22V21H16V22C16 22.283 15.904 22.521 15.713 22.713C15.521 22.904 15.283 23 15 23H2Z"/></svg><span class="guest guest--inline">Гость 1</span><span class="name">Ланч</span><span class="cap">2 из 3</span></div>
+        </div>
+        <div class="row nest"><span class="name">Бургер</span><span class="btn btn--cook"><svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg></span></div>
+        <div class="row nest"><span class="name">Картофель</span><span class="btn btn--ready"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span></div>
+        <div class="row"><span class="name">Бургер</span><span class="btn btn--ready"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span></div>
+      </div>
+      <p class="notes"><b>32 px.</b> Самая компактная, но в строке четыре сущности сразу: значок, гость, название, цифры. Названию остаётся около 220 px — длинное имя обрезается раньше всех.<br><span class="bad">Экономит 20 px ценой названия.</span></p>
+    </div>
+
   </div>
 
-  <footer>
-    Что меняется: у заголовка убран фон и радиус (это была коробка на всю ширину без содержимого справа), вторая подпись «остальные — в других цехах» удалена, подпись видимости сокращена до «2 из 3» и стоит справа на строке названия набора, значок набора 16 px — слева от названия. Третий блок — проверка длинным названием: подпись не отнимает у названия место, поэтому обрезка начинается позже.
-    <div class="tokens">Значения взяты из прототипа: экран #121212, строки #212121 R8 52 px, кнопка 52×52 #3B3B43, название 22/28 Medium, гость 12/16 #D6D6D6, подпись 12/16 #BDBDBD, значок 16 px #9E9E9E, отступ вложенных строк 16 px, зазор строк 4 px.</div>
-  </footer>
+  <h2>Сравнение</h2>
+  <table>
+    <thead><tr><th>Вариант</th><th>Высота</th><th>Цифры рядом с…</th><th>Название, px</th><th>Подложка</th><th>Читается как строка блюда</th></tr></thead>
+    <tbody>
+      <tr><td>A · коробка, 4 строки</td><td class="num">86</td><td>строкой ниже названия</td><td class="num">328</td><td class="bad">да</td><td class="bad">да</td></tr>
+      <tr><td>B · коробка, 1 строка</td><td class="num">52</td><td>названием</td><td class="num">283</td><td class="bad">да</td><td class="bad">да</td></tr>
+      <tr class="pick"><td><b>C · подпись, 2 строки</b></td><td class="num"><b>52</b></td><td><b>названием</b></td><td class="num"><b>283</b></td><td class="good">нет</td><td class="good">нет</td></tr>
+      <tr><td>D · подпись, 3 строки</td><td class="num">73</td><td>отдельной строкой</td><td class="num">328</td><td class="good">нет</td><td class="good">нет</td></tr>
+      <tr><td>E · одна строка</td><td class="num">32</td><td>названием</td><td class="num">~220</td><td class="good">нет</td><td class="good">нет</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Нюансы, которые проверены на вариантах</h2>
+  <ul>
+    <li><b>Длинное название.</b> Подпись стоит на строке названия и не отнимает больше 45 px; при нехватке места обрезается название, подпись остаётся целой. Худший случай — E: там у названия всего ~220 px.</li>
+    <li><b>Один компонент.</b> Заголовок не меняется: две строки, цифры «1 из 3». Группа с одной строкой выглядит так же, как с тремя.</li>
+    <li><b>Пять-шесть компонентов.</b> Заголовок отделён от строк отсутствием подложки и левым краем (8 против 24) — при длинной группе связь не теряется.</li>
+    <li><b>Курсы.</b> Полоса курса остаётся единственным элементом с фоном; заголовок набора на фон не претендует, иерархия уровней не путается.</li>
+    <li><b>Гость.</b> В базе гость стоит строкой над блоком. В C и D это сохранено; в B он потерян, в E подмешан в строку названия.</li>
+    <li><b>Тач.</b> Ни в одном варианте нет hover-зависимостей; цели — строки 52 px и кнопки 52×52.</li>
+    <li><b>Статус набора.</b> Ни в одном варианте у заголовка нет кнопки, статуса и количества — условие постановки выполнено во всех, кроме A и B по форме (они выглядят как позиция).</li>
+  </ul>
+
+  <div class="final">
+    <h3>Вывод: C</h3>
+    <p style="margin:0 0 10px;font-size:14px;line-height:1.6">C даёт то же, что D, но на 21 px ниже, и то же, что E, но с названием на 63 px шире. Подложку не добавляет — наоборот, убирает единственную лишнюю. Цифры стоят на строке названия, поэтому читаются как «у набора 2 из 3», а не как «у гостя 2 из 3» и не как «2 из 3 готово».</p>
+    <p style="margin:0;font-size:14px;line-height:1.6">Правила для реализации: гость 12/16 `#D6D6D6`; вторая строка — значок 16 px `#9E9E9E`, название 22/28 Medium `#FFFFFF`, цифры 14/16 Medium `#BDBDBD` справа; заголовок 52 px, без фона и радиусов; строки 52 px `#212121` R8 с отступом 16; зазор 4 px.</p>
+  </div>
+
+  <footer>Источники: PB-8108 и сценарии PB-8101-combo-user-scenarios-2026-10-19. Значения — из живого прототипа kds-combo.html (кадр 360): #121212, #212121, кнопка 52×52 #3B3B43, 22/28 Medium, 12/16, отступ 16, зазор 4.</footer>
 </div>
 </body>
 </html>
